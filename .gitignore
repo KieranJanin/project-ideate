@@ -1,0 +1,42 @@
+# Ignore bytecode files
+__pycache__/
+*.pyc
+
+# Ignore virtual environments
+.venv/
+venv/
+env/
+
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Ignore editor specific files
+.vscode/
+.idea/
+*~
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db
+
+# Ignore test and coverage files
+.coverage
+.pytest_cache/
+
+# Ignore logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Ignore jupyter notebook checkpoints
+.ipynb_checkpoints
+
+# Ignore pip files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignore specific directories from the project structure
+data/outputs/
