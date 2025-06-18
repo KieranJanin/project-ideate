@@ -90,4 +90,6 @@ The backend server will now be running on http://127.0.0.1:5001.
 
 2. Frontend Setup
 
-The frontend is a single, self-contained HTML file.Make sure the backend Flask server is running.Open the design-thinking-dashboard.html file in any modern web browser.The user interface will load, and its JavaScript will be able to communicate with your local backend server to power the AI features.
+The frontend is a single, self-contained HTML file.Make sure the backend Flask server is running.
+* Open the design-thinking-dashboard.html file in any modern web browser.
+* The user interface will load, and its JavaScript will be able to communicate with your local backend server to power the AI features.

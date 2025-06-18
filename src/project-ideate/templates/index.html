@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Design Crew - Mission Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #2d3748;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+        /* Spinner for API calls */
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex h-screen overflow-hidden">
+
+    <!-- Left Column: Control Panel -->
+    <aside class="w-1/4 bg-gray-800 p-6 flex flex-col space-y-6 overflow-y-auto custom-scrollbar">
+        <header>
+            <h1 class="text-2xl font-bold text-white">Mission Control</h1>
+            <p class="text-sm text-gray-400">Configure & oversee your agent crew</p>
+        </header>
+
+        <!-- Project Setup -->
+        <div class="space-y-2">
+            <div class="flex justify-between items-center">
+                 <label for="design-challenge" class="text-sm font-medium text-gray-300">Design Challenge</label>
+                 <button id="generate-challenge-btn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded-md flex items-center transition">Generate ✨</button>
+            </div>
+            <textarea id="design-challenge" rows="4" class="w-full bg-gray-700 border-gray-600 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter a keyword like 'freelancer banking' and click Generate..."></textarea>
+        </div>
+
+        <!-- Team Composition -->
+        <div>
+            <h2 class="text-lg font-semibold text-white mb-3">Team Composition</h2>
+            <div id="agent-list-container" class="space-y-4"></div>
+        </div>
+
+        <!-- Simulation Controls -->
+        <div class="bg-gray-700 p-4 rounded-lg space-y-4">
+            <h3 class="text-md font-semibold text-white">Controls</h3>
+            <div class="flex items-center justify-between">
+                <p class="text-sm">Status: <span id="sim-status" class="font-semibold text-yellow-400">Idle</span></p>
+                <div id="loading-spinner" class="loader hidden"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"></button>
+                <button id="pause-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition" disabled></button>
+                <button id="reset-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"></button>
+            </div>
+             <div>
+                <label for="speed-slider" class="text-sm font-medium text-gray-300">Simulation Speed</label>
+                <input id="speed-slider" type="range" min="1" max="5" value="3" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+            </div>
+        </div>
+    </aside>
+
+    <!-- Center Column: Live Feed -->
+    <main class="w-1/2 bg-gray-900 flex flex-col p-4">
+        <div id="live-feed" class="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-6"></div>
+    </main>
+
+    <!-- Right Column: Project Whiteboard -->
+    <aside class="w-1/4 bg-gray-800 p-6 flex flex-col space-y-6 overflow-y-auto custom-scrollbar">
+        <header>
+            <h2 class="text-2xl font-bold text-white">Project Whiteboard</h2>
+            <p class="text-sm text-gray-400">Live artifacts & outcomes</p>
+        </header>
+        <div>
+            <h3 class="text-lg font-semibold text-white mb-3">Current Phase</h3>
+            <ol id="phase-stepper" class="space-y-2"></ol>
+        </div>
+        <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-white">Key Artifacts</h3>
+            <div id="insights-card" class="bg-gray-700 p-4 rounded-lg hidden">
+                <h4 class="font-semibold text-white">User Insights</h4>
+                <ul id="insights-list" class="list-disc list-inside text-sm text-gray-300 mt-2 space-y-1"></ul>
+            </div>
+            <div id="ideas-card" class="bg-gray-700 p-4 rounded-lg hidden">
+                <h4 class="font-semibold text-white">Generated Ideas ✨</h4>
+                <ul id="ideas-list" class="list-decimal list-inside text-sm text-gray-300 mt-2 space-y-1"></ul>
+            </div>
+             <div id="final-concept-card" class="bg-blue-900/50 border border-blue-500 p-4 rounded-lg hidden">
+                <h4 class="font-semibold text-blue-300">Final Concept ✨</h4>
+                <div id="final-concept-content" class="mt-2 text-sm"></div>
+            </div>
+        </div>
+        <div class="space-y-3">
+            <h3 class="text-lg font-semibold text-white">Success Metrics</h3>
+            <div id="metrics-container"></div>
+        </div>
+    </aside>
+
+    <script>
+        // --- DATA ---
+        const agents = [
+            // Learning Personas
+            { id: 'anthropologist', name: 'Anthropologist', role: 'Observes human behavior to find deep, unbiased user insights.', avatar: '🌍', category: 'Learning' },
+            { id: 'experimenter', name: 'Experimenter', role: 'Tests assumptions and prototypes ideas to gather data.', avatar: '🧪', category: 'Learning' },
+            { id: 'cross-pollinator', name: 'Cross-Pollinator', role: 'Draws connections between unrelated fields to spark new ideas.', avatar: '🐝', category: 'Learning' },
+            // Organizing Personas
+            { id: 'director', name: 'Director', role: 'Manages the overall process and team.', avatar: '👑', category: 'Organizing' },
+            { id: 'collaborator', name: 'Collaborator', role: 'Facilitates teamwork and ensures all voices are heard.', avatar: '🤝', category: 'Organizing' },
+            { id: 'hurdler', name: 'Hurdler', role: 'Identifies obstacles and finds pragmatic solutions to overcome them.', avatar: '🚧', category: 'Organizing' },
+            // Building Personas
+            { id: 'experience-architect', name: 'Experience Architect', role: 'Designs compelling user journeys and interactions.', avatar: '🏗️', category: 'Building' },
+            { id: 'set-designer', name: 'Set Designer', role: 'Designs the environment where the experience takes place.', avatar: '🖼️', category: 'Building' },
+            { id: 'caregiver', name: 'Caregiver', role: 'Focuses on customer service and the user relationship.', avatar: '❤️', category: 'Building' },
+            { id: 'storyteller', name: 'Storyteller', role: 'Crafts compelling narratives around the product and its value.', avatar: '📜', category: 'Building' },
+        ];
+        const phases = ['Empathize', 'Define', 'Ideate', 'Prototype & Test', 'Finalize'];
+        
+        // --- Simulation script now defines the FLOW and triggers for API calls ---
+        const simulationFlow = [
+            { type: 'phase', phase: 0 },
+            { type: 'msg', agent: 'director', content: (challenge) => `Team, our challenge is: "${challenge}". Let's start the Empathize phase. Anthropologist, please lead the initial research.` },
+            { type: 'msg', agent: 'anthropologist', thought: 'Okay, my goal is to understand the core user pain points. I will search for articles, forums, and user reviews.' },
+            { type: 'tool', agent: 'anthropologist', content: 'search_web("user financial challenges")' },
+            { type: 'insight', content: 'Users struggle with unpredictable income streams.' },
+            { type: 'msg', agent: 'anthropologist', content: "Initial findings show a major issue is managing variable income and planning for taxes." },
+            { type: 'phase', phase: 1 },
+            { type: 'msg', agent: 'director', content: (challenge, insights) => `Great insights. Let's move to Define. Our focus will be: 'How might we help users automatically budget for savings from inconsistent payments?'` },
+            { type: 'phase', phase: 2 },
+            { type: 'msg', agent: 'director', content: "Time to Ideate. Based on the problem, let's brainstorm solutions." },
+            { type: 'call_gemini', task: 'ideate', agent: 'experience-architect' },
+            { type: 'phase', phase: 3 },
+            { type: 'msg', agent: 'director', content: "Excellent ideas. Let's prototype the top concept. Hurdler, what are the immediate obstacles?" },
+            { type: 'msg', agent: 'hurdler', content: "The main hurdles are: 1) Integrating with diverse banking APIs securely, and 2) Ensuring the AI's predictions are accurate enough to be trusted. These are solvable." },
+            { type: 'phase', phase: 4 },
+            { type: 'msg', agent: 'director', content: "The path seems clear. Let's finalize the concept. Storyteller, craft the pitch." },
+            { type: 'call_gemini', task: 'finalize', agent: 'storyteller' },
+            { type: 'end' }
+        ];
+
+        // --- DOM Elements ---
+        const agentListContainerEl = document.getElementById('agent-list-container');
+        const phaseStepperEl = document.getElementById('phase-stepper');
+        const metricsContainerEl = document.getElementById('metrics-container');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const statusEl = document.getElementById('sim-status');
+        const feedEl = document.getElementById('live-feed');
+        const insightsCard = document.getElementById('insights-card');
+        const insightsList = document.getElementById('insights-list');
+        const ideasCard = document.getElementById('ideas-card');
+        const ideasList = document.getElementById('ideas-list');
+        const finalConceptCard = document.getElementById('final-concept-card');
+        const finalConceptContent = document.getElementById('final-concept-content');
+        const speedSlider = document.getElementById('speed-slider');
+        const generateChallengeBtn = document.getElementById('generate-challenge-btn');
+        const designChallengeTextarea = document.getElementById('design-challenge');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        // --- State ---
+        let simInterval;
+        let scriptIndex = 0;
+        let isPaused = false;
+        let currentPhase = -1;
+        let isCallingAPI = false;
+        let collectedInsights = [];
+        let collectedIdeas = [];
+
+        // --- Gemini API Call ---
+        async function callGemini(prompt) {
+            isCallingAPI = true;
+            loadingSpinner.classList.remove('hidden');
+            
+            const apiKey = ""; // Leave blank
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{
+                    role: "user",
+                    parts: [{ text: prompt }]
+                }]
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.statusText}`);
+                }
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                }
+                return "The model could not generate a response.";
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                return `Error: Could not connect to the AI model. ${error.message}`;
+            } finally {
+                isCallingAPI = false;
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+        
+        // --- UI Rendering ---
+        function renderAgents() {
+            const groupedAgents = agents.reduce((acc, agent) => {
+                const category = agent.category;
+                if (!acc[category]) {
+                    acc[category] = [];
+                }
+                acc[category].push(agent);
+                return acc;
+            }, {});
+
+            agentListContainerEl.innerHTML = '';
+            for (const category in groupedAgents) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.innerHTML = `<h3 class="text-md font-semibold text-gray-400 mb-2">${category} Personas</h3>`;
+                
+                const ul = document.createElement('ul');
+                ul.className = 'space-y-3';
+
+                groupedAgents[category].forEach(agent => {
+                    const li = document.createElement('li');
+                    li.className = 'flex items-center justify-between bg-gray-900 p-2 rounded-md';
+                    li.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xl">${agent.avatar}</span>
+                            <span class="font-medium text-sm">${agent.name}</span>
+                            <div class="tooltip">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="tooltiptext">${agent.role}</span>
+                            </div>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value="${agent.id}" class="sr-only peer agent-toggle" checked>
+                            <div class="relative w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    `;
+                    ul.appendChild(li);
+                });
+                categoryDiv.appendChild(ul);
+                agentListContainerEl.appendChild(categoryDiv);
+            }
+        }
+
+        function renderPhaseStepper() {
+            phaseStepperEl.innerHTML = '';
+            phases.forEach((phase, index) => {
+                const li = document.createElement('li');
+                const isActive = index === currentPhase;
+                const isCompleted = index < currentPhase;
+                
+                let stateClass = 'text-gray-500';
+                let icon = '⚪';
+                if(isActive) {
+                    stateClass = 'text-blue-400 font-semibold';
+                    icon = '🔵';
+                }
+                if(isCompleted) {
+                    stateClass = 'text-green-400';
+                    icon = '🟢';
+                }
+
+                li.className = `flex items-center space-x-2 text-sm ${stateClass}`;
+                li.innerHTML = `<span>${icon}</span> <span>${phase}</span>`;
+                phaseStepperEl.appendChild(li);
+            });
+        }
+
+        function renderMetrics() {
+            metricsContainerEl.innerHTML = `
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-sm font-medium">Novelty</span>
+                        <div class="w-full bg-gray-600 rounded-full h-2.5"><div id="novelty-bar" class="bg-purple-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium">Feasibility</span>
+                        <div class="w-full bg-gray-600 rounded-full h-2.5"><div id="feasibility-bar" class="bg-green-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                    <div>
+                        <span class="text-sm font-medium">User-Centricity</span>
+                        <div class="w-full bg-gray-600 rounded-full h-2.5"><div id="user-centricity-bar" class="bg-sky-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function addMessageToFeed(agent, content, type = 'msg', isAI = false) {
+            const agentData = agents.find(a => a.id === agent) || {};
+            const div = document.createElement('div');
+            
+            let messageContent = '';
+            let bgColor = 'bg-gray-800';
+            
+            switch(type) {
+                case 'thought':
+                    messageContent = `<p class="italic text-gray-400">🧠 ${content}</p>`;
+                    bgColor = 'bg-transparent';
+                    break;
+                case 'tool':
+                    messageContent = `<p class="font-mono text-sm text-yellow-300 bg-black/30 p-2 rounded-md">🔧 ${content}</p>`;
+                    bgColor = 'bg-transparent';
+                    break;
+                default:
+                    messageContent = `<p>${content}</p>`;
+                    break;
+            }
+
+            div.className = `p-4 rounded-lg flex items-start space-x-4 ${bgColor}`;
+            div.innerHTML = `
+                <span class="text-2xl">${agentData.avatar || '🤖'}</span>
+                <div class="flex-1">
+                    <p class="font-semibold text-white">${agentData.name || 'System'} ${isAI ? '✨' : ''}</p>
+                    <div class="text-gray-300 text-sm">${messageContent}</div>
+                </div>
+            `;
+            feedEl.appendChild(div);
+            feedEl.scrollTop = feedEl.scrollHeight;
+        }
+
+        // --- Simulation Logic ---
+        async function processScriptStep() {
+            if (isPaused || scriptIndex >= simulationFlow.length || isCallingAPI) {
+                if(scriptIndex >= simulationFlow.length) stopSimulation();
+                return;
+            }
+
+            const step = simulationFlow[scriptIndex];
+
+            if (step.type === 'phase') {
+                currentPhase = step.phase;
+                renderPhaseStepper();
+            } else if (step.type === 'insight') {
+                insightsCard.classList.remove('hidden');
+                const li = document.createElement('li');
+                li.textContent = step.content;
+                insightsList.appendChild(li);
+                collectedInsights.push(step.content);
+                document.getElementById('user-centricity-bar').style.width = `${Math.random() * 20 + 70}%`;
+            } else if (step.type === 'msg') {
+                const challenge = designChallengeTextarea.value;
+                const content = typeof step.content === 'function' ? step.content(challenge, collectedInsights) : step.content;
+                addMessageToFeed(step.agent, content, step.thought ? 'thought' : 'msg');
+            } else if (step.type === 'tool'){
+                addMessageToFeed(step.agent, step.content, 'tool');
+            } else if (step.type === 'call_gemini') {
+                const challenge = designChallengeTextarea.value;
+                let prompt = '';
+                if (step.task === 'ideate') {
+                    prompt = `You are the ${agents.find(a=>a.id === step.agent).name}. Your team is working on the challenge: "${challenge}". Key user insights are: "${collectedInsights.join(', ')}". Brainstorm 2 creative ideas to solve this. Present them as a numbered list.`;
+                    addMessageToFeed(step.agent, 'Thinking of some creative ideas...', 'thought');
+                    const ideasText = await callGemini(prompt);
+                    const ideas = ideasText.split('\n').filter(line => line.match(/^\d\./));
+                    ideasList.innerHTML = '';
+                    ideasCard.classList.remove('hidden');
+                    ideas.forEach(idea => {
+                        const cleanIdea = idea.replace(/^\d\.\s*/, '');
+                        const li = document.createElement('li');
+                        li.textContent = cleanIdea;
+                        ideasList.appendChild(li);
+                        collectedIdeas.push(cleanIdea);
+                    });
+                     addMessageToFeed(step.agent, `Here are a couple of ideas I came up with:\n${ideasText}`, 'msg', true);
+                    document.getElementById('novelty-bar').style.width = `${Math.random() * 20 + 60}%`;
+                } else if (step.task === 'finalize') {
+                    prompt = `You are the Storyteller. Your team worked on the challenge: "${challenge}". Key insights were: "${collectedInsights.join('. ')}". The chosen ideas were: "${collectedIdeas.join('. ')}". Write a compelling final product pitch to present this as a single, coherent concept. Start with a catchy name.`;
+                    addMessageToFeed(step.agent, 'Crafting the final narrative...', 'thought');
+                    const finalConceptText = await callGemini(prompt);
+                    finalConceptCard.classList.remove('hidden');
+                    finalConceptContent.innerHTML = finalConceptText.replace(/\n/g, '<br>');
+                    addMessageToFeed(step.agent, finalConceptText, 'msg', true);
+                     document.getElementById('feasibility-bar').style.width = `${Math.random() * 20 + 75}%`;
+                }
+            } else if (step.type === 'end') {
+                stopSimulation();
+                statusEl.textContent = 'Completed';
+                statusEl.className = 'font-semibold text-green-400';
+            }
+
+            scriptIndex++;
+        }
+
+        // --- Control Functions ---
+        function startSimulation() {
+             if (scriptIndex >= simulationFlow.length || designChallengeTextarea.value.trim() === '') {
+                 alert("Please provide a design challenge before starting.");
+                 return;
+             }
+            const activeAgents = Array.from(document.querySelectorAll('.agent-toggle:checked')).map(el => el.value);
+            console.log("Starting simulation with active agents:", activeAgents);
+
+            startBtn.disabled = true;
+            pauseBtn.disabled = false;
+            isPaused = false;
+            statusEl.textContent = 'Running...';
+            statusEl.className = 'font-semibold text-blue-400';
+            const speed = (6 - speedSlider.value) * 800;
+            simInterval = setInterval(processScriptStep, speed);
+        }
+
+        function pauseSimulation() { 
+            isPaused = !isPaused;
+            if (isPaused) {
+                clearInterval(simInterval);
+                pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>'; // Play icon
+                statusEl.textContent = 'Paused';
+                statusEl.className = 'font-semibold text-yellow-400';
+
+            } else {
+                startSimulation();
+                pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>'; // Pause icon
+            }
+        }
+        function stopSimulation() {
+            clearInterval(simInterval);
+            startBtn.disabled = true;
+            pauseBtn.disabled = true;
+        }
+
+        function resetSimulation() {
+            clearInterval(simInterval);
+            scriptIndex = 0;
+            currentPhase = -1;
+            isPaused = false;
+            isCallingAPI = false;
+            collectedInsights = [];
+            collectedIdeas = [];
+            
+            feedEl.innerHTML = `<div class="text-center text-gray-500"><p>Simulation reset. Ready to begin.</p></div>`;
+            
+            insightsList.innerHTML = '';
+            insightsCard.classList.add('hidden');
+            if (ideasList) ideasList.innerHTML = '';
+            ideasCard.classList.add('hidden');
+            if (finalConceptContent) finalConceptContent.innerHTML = '';
+            finalConceptCard.classList.add('hidden');
+
+            renderPhaseStepper();
+            renderMetrics();
+            
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            statusEl.textContent = 'Idle';
+            statusEl.className = 'font-semibold text-yellow-400';
+        }
+
+        async function handleGenerateChallenge() {
+            const keyword = designChallengeTextarea.value.trim();
+            if (!keyword) {
+                alert("Please enter a keyword first (e.g., 'sustainable packaging').");
+                return;
+            }
+            const prompt = `You are a design thinking facilitator. Expand the following keyword into a rich, detailed, and inspiring design challenge for a creative team. Make it specific and actionable. KEYWORD: "${keyword}"`;
+            designChallengeTextarea.value = "Generating challenge with AI...";
+            designChallengeTextarea.disabled = true;
+            const result = await callGemini(prompt);
+            designChallengeTextarea.value = result;
+            designChallengeTextarea.disabled = false;
+        }
+
+        // --- Event Listeners ---
+        startBtn.addEventListener('click', () => {
+             if (scriptIndex === 0) feedEl.innerHTML = '';
+             startSimulation();
+        });
+        pauseBtn.addEventListener('click', pauseSimulation);
+        resetBtn.addEventListener('click', resetSimulation);
+        speedSlider.addEventListener('input', () => {
+            if (simInterval && !isPaused) {
+                clearInterval(simInterval);
+                startSimulation();
+            }
+        });
+        generateChallengeBtn.addEventListener('click', handleGenerateChallenge);
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAgents();
+            
+            startBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+            pauseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+            resetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>`;
+            
+            resetSimulation();
+        });
+    </script>
+</body>
+</html>
