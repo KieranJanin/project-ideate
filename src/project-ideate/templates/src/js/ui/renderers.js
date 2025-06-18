@@ -68,7 +68,7 @@ export function renderPersona(persona) {
             </div>
         </div>`;
 }
-export renderQuotes(quotes) {
+export function renderQuotes(quotes) {
     dom.keyQuotesContainer.classList.remove('hidden');
     dom.keyQuotesContainer.innerHTML = `
         <div class="bg-gray-800 p-4 rounded-lg h-full">
@@ -102,7 +102,7 @@ export function renderPOV(pov) {
            </p>
        </div>`;
 }
-export renderSuccessMetrics(metrics) {
+export function renderSuccessMetrics(metrics) {
     dom.successMetricsContainer.classList.remove('hidden');
     dom.successMetricsContainer.innerHTML = `
          <div class="bg-gray-800 p-4 rounded-lg h-full">

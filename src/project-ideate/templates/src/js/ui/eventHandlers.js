@@ -46,7 +46,7 @@ export function initializeEventListeners() {
 /**
  * Handles the "Generate" button click to create a new design challenge.
  */
-async function handleGenerateChallenge() {
+export async function handleGenerateChallenge() {
     const keyword = dom.designChallengeTextarea.value.trim();
     if (!keyword) {
         alert("Please enter a keyword first (e.g., 'sustainable packaging').");
@@ -64,7 +64,7 @@ async function handleGenerateChallenge() {
  * Handles sending a message from any of the phase chat inputs.
  * @param {Event} event - The click or keyup event.
  */
-async function handlePhaseInteraction(event) {
+export async function handlePhaseInteraction(event) {
     const button = event.target.closest('.chat-send-btn');
     const input = button ? button.previousElementSibling : (event.target.tagName === 'INPUT' ? event.target : null);
     if (!input || (event.type === 'keyup' && event.key !== 'Enter')) return;

@@ -60,7 +60,7 @@ The application is a single-page web interface designed as a "Mission Control" d
 * Python 3.8+
 * An active Google API Key with the Gemini API enabled.
 
-1. Backend Setup
+### 1. Backend Setup
 
 The backend is the Flask server that runs the agent logic.
 
@@ -88,7 +88,7 @@ python app.py
 
 The backend server will now be running on http://127.0.0.1:5001.
 
-2. Frontend Setup
+### 2. Frontend Setup
 
 The frontend is a single, self-contained HTML file.Make sure the backend Flask server is running.
 * Open the design-thinking-dashboard.html file in any modern web browser.
