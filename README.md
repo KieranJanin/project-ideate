@@ -67,12 +67,12 @@ The backend is the Flask server that runs the agent logic.
 ```bash
 # 1. Clone the repository
 git clone [https://github.com/KieranJanin/project-ideate.git](https://github.com/KieranJanin/project-ideate.git)
-cd agentic-design-crew
+cd project-ideate
 
 # 2. Create and activate a virtual environment
 
-python -m venv venv
-source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+python -m venv ideate-venv
+source ideate-venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 
 # 3. Install Python dependencies
 pip install Flask flask-cors google-generativeai python-dotenv
