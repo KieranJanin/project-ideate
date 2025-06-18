@@ -15,7 +15,6 @@ dist/
 
 # Ignore editor specific files
 .vscode/
-.idea/
 *~
 
 # Ignore OS specific files
@@ -38,5 +37,6 @@ Thumbs.db
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Ignore specific directories from the project structure
+# Ignore specific directories and files from the project structure
 data/outputs/
+.env
