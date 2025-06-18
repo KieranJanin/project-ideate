@@ -3,538 +3,716 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agentic Design Crew - Mission Control</title>
+    <title>Project IDEATE - Agentic Workspace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 220px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -110px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #2d3748;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #4a5568;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #718096;
-        }
-        /* Spinner for API calls */
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #6b7280; }
         .loader {
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #3498db;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
+            border: 2px solid #f3f3f3; border-top: 2px solid #3498db; border-radius: 50%;
+            width: 16px; height: 16px; animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .nav-link {
+            display: flex; align-items: center; padding: 0.75rem 1rem;
+            border-radius: 0.375rem; transition: background-color 0.2s, color 0.2s;
+            color: #d1d5db;
+        }
+        .nav-link:hover { background-color: #374151; color: #fff; }
+        .nav-link.active { background-color: #4f46e5; color: #fff; font-weight: 600; }
+        .view { display: none; }
+        .view.active { display: flex; }
+        .gutter {
+            background-color: #4b5563;
+            background-repeat: no-repeat;
+            background-position: 50%;
+        }
+        .gutter.gutter-horizontal {
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxl79uzZDCBioElMYKIEysAABYVAAwMXpxUIBCS+AAAAAElFTkSuQmCC');
+            cursor: col-resize;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 flex h-screen overflow-hidden">
+<body class="bg-gray-900 text-gray-200 flex flex-col lg:flex-row h-screen overflow-hidden">
 
-    <!-- Left Column: Control Panel -->
-    <aside class="w-1/4 bg-gray-800 p-6 flex flex-col space-y-6 overflow-y-auto custom-scrollbar">
-        <header>
-            <h1 class="text-2xl font-bold text-white">Mission Control</h1>
-            <p class="text-sm text-gray-400">Configure & oversee your agent crew</p>
+    <!-- Primary Navigation Bar -->
+    <nav id="main-nav" class="w-full lg:w-64 bg-gray-800 p-4 flex-shrink-0 flex flex-row lg:flex-col lg:space-y-2 overflow-x-auto lg:overflow-y-hidden">
+        <header class="px-2 pb-4 hidden lg:block">
+            <h1 class="text-2xl font-bold text-white">Project IDEATE</h1>
+            <p class="text-xs text-gray-400">Agentic Workspace</p>
         </header>
-
-        <!-- Project Setup -->
-        <div class="space-y-2">
-            <div class="flex justify-between items-center">
-                 <label for="design-challenge" class="text-sm font-medium text-gray-300">Design Challenge</label>
-                 <button id="generate-challenge-btn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded-md flex items-center transition">Generate ✨</button>
-            </div>
-            <textarea id="design-challenge" rows="4" class="w-full bg-gray-700 border-gray-600 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter a keyword like 'freelancer banking' and click Generate..."></textarea>
-        </div>
-
-        <!-- Team Composition -->
-        <div>
-            <h2 class="text-lg font-semibold text-white mb-3">Team Composition</h2>
-            <div id="agent-list-container" class="space-y-4"></div>
-        </div>
-
-        <!-- Simulation Controls -->
-        <div class="bg-gray-700 p-4 rounded-lg space-y-4">
-            <h3 class="text-md font-semibold text-white">Controls</h3>
-            <div class="flex items-center justify-between">
-                <p class="text-sm">Status: <span id="sim-status" class="font-semibold text-yellow-400">Idle</span></p>
-                <div id="loading-spinner" class="loader hidden"></div>
-            </div>
-            <div class="grid grid-cols-3 gap-2">
-                <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"></button>
-                <button id="pause-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition" disabled></button>
-                <button id="reset-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"></button>
-            </div>
-             <div>
-                <label for="speed-slider" class="text-sm font-medium text-gray-300">Simulation Speed</label>
-                <input id="speed-slider" type="range" min="1" max="5" value="3" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+        <div class="flex flex-row lg:flex-col lg:space-y-1 w-full">
+            <a href="#mission-control" class="nav-link active" data-view="mission-control-view"><i class="fas fa-rocket w-6 text-center"></i><span class="ml-3 hidden lg:inline">Mission Control</span></a>
+            <div class="pt-0 lg:pt-4">
+                <h2 class="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:block">Phases</h2>
+                <div class="mt-2 flex flex-row lg:flex-col lg:space-y-1">
+                    <a href="#empathize" class="nav-link" data-view="empathize-view"><i class="fas fa-heart w-6 text-center"></i><span class="ml-3 hidden lg:inline">Empathize</span></a>
+                    <a href="#define" class="nav-link" data-view="define-view"><i class="fas fa-bullseye w-6 text-center"></i><span class="ml-3 hidden lg:inline">Define</span></a>
+                    <a href="#ideate" class="nav-link" data-view="ideate-view"><i class="fas fa-lightbulb w-6 text-center"></i><span class="ml-3 hidden lg:inline">Ideate</span></a>
+                    <a href="#prototype" class="nav-link" data-view="prototype-test-view"><i class="fas fa-vial w-6 text-center"></i><span class="ml-3 hidden lg:inline">Prototype & Test</span></a>
+                    <a href="#finalize" class="nav-link" data-view="finalize-view"><i class="fas fa-flag-checkered w-6 text-center"></i><span class="ml-3 hidden lg:inline">Finalize</span></a>
+                </div>
             </div>
         </div>
-    </aside>
+    </nav>
 
-    <!-- Center Column: Live Feed -->
-    <main class="w-1/2 bg-gray-900 flex flex-col p-4">
-        <div id="live-feed" class="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-6"></div>
-    </main>
-
-    <!-- Right Column: Project Whiteboard -->
-    <aside class="w-1/4 bg-gray-800 p-6 flex flex-col space-y-6 overflow-y-auto custom-scrollbar">
-        <header>
-            <h2 class="text-2xl font-bold text-white">Project Whiteboard</h2>
-            <p class="text-sm text-gray-400">Live artifacts & outcomes</p>
-        </header>
-        <div>
-            <h3 class="text-lg font-semibold text-white mb-3">Current Phase</h3>
-            <ol id="phase-stepper" class="space-y-2"></ol>
-        </div>
-        <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-white">Key Artifacts</h3>
-            <div id="insights-card" class="bg-gray-700 p-4 rounded-lg hidden">
-                <h4 class="font-semibold text-white">User Insights</h4>
-                <ul id="insights-list" class="list-disc list-inside text-sm text-gray-300 mt-2 space-y-1"></ul>
-            </div>
-            <div id="ideas-card" class="bg-gray-700 p-4 rounded-lg hidden">
-                <h4 class="font-semibold text-white">Generated Ideas ✨</h4>
-                <ul id="ideas-list" class="list-decimal list-inside text-sm text-gray-300 mt-2 space-y-1"></ul>
-            </div>
-             <div id="final-concept-card" class="bg-blue-900/50 border border-blue-500 p-4 rounded-lg hidden">
-                <h4 class="font-semibold text-blue-300">Final Concept ✨</h4>
-                <div id="final-concept-content" class="mt-2 text-sm"></div>
-            </div>
-        </div>
-        <div class="space-y-3">
-            <h3 class="text-lg font-semibold text-white">Success Metrics</h3>
-            <div id="metrics-container"></div>
-        </div>
-    </aside>
-
-    <script>
-        // --- DATA ---
-        const agents = [
-            // Learning Personas
-            { id: 'anthropologist', name: 'Anthropologist', role: 'Observes human behavior to find deep, unbiased user insights.', avatar: '🌍', category: 'Learning' },
-            { id: 'experimenter', name: 'Experimenter', role: 'Tests assumptions and prototypes ideas to gather data.', avatar: '🧪', category: 'Learning' },
-            { id: 'cross-pollinator', name: 'Cross-Pollinator', role: 'Draws connections between unrelated fields to spark new ideas.', avatar: '🐝', category: 'Learning' },
-            // Organizing Personas
-            { id: 'director', name: 'Director', role: 'Manages the overall process and team.', avatar: '👑', category: 'Organizing' },
-            { id: 'collaborator', name: 'Collaborator', role: 'Facilitates teamwork and ensures all voices are heard.', avatar: '🤝', category: 'Organizing' },
-            { id: 'hurdler', name: 'Hurdler', role: 'Identifies obstacles and finds pragmatic solutions to overcome them.', avatar: '🚧', category: 'Organizing' },
-            // Building Personas
-            { id: 'experience-architect', name: 'Experience Architect', role: 'Designs compelling user journeys and interactions.', avatar: '🏗️', category: 'Building' },
-            { id: 'set-designer', name: 'Set Designer', role: 'Designs the environment where the experience takes place.', avatar: '🖼️', category: 'Building' },
-            { id: 'caregiver', name: 'Caregiver', role: 'Focuses on customer service and the user relationship.', avatar: '❤️', category: 'Building' },
-            { id: 'storyteller', name: 'Storyteller', role: 'Crafts compelling narratives around the product and its value.', avatar: '📜', category: 'Building' },
-        ];
-        const phases = ['Empathize', 'Define', 'Ideate', 'Prototype & Test', 'Finalize'];
-        
-        // --- Simulation script now defines the FLOW and triggers for API calls ---
-        const simulationFlow = [
-            { type: 'phase', phase: 0 },
-            { type: 'msg', agent: 'director', content: (challenge) => `Team, our challenge is: "${challenge}". Let's start the Empathize phase. Anthropologist, please lead the initial research.` },
-            { type: 'msg', agent: 'anthropologist', thought: 'Okay, my goal is to understand the core user pain points. I will search for articles, forums, and user reviews.' },
-            { type: 'tool', agent: 'anthropologist', content: 'search_web("user financial challenges")' },
-            { type: 'insight', content: 'Users struggle with unpredictable income streams.' },
-            { type: 'msg', agent: 'anthropologist', content: "Initial findings show a major issue is managing variable income and planning for taxes." },
-            { type: 'phase', phase: 1 },
-            { type: 'msg', agent: 'director', content: (challenge, insights) => `Great insights. Let's move to Define. Our focus will be: 'How might we help users automatically budget for savings from inconsistent payments?'` },
-            { type: 'phase', phase: 2 },
-            { type: 'msg', agent: 'director', content: "Time to Ideate. Based on the problem, let's brainstorm solutions." },
-            { type: 'call_gemini', task: 'ideate', agent: 'experience-architect' },
-            { type: 'phase', phase: 3 },
-            { type: 'msg', agent: 'director', content: "Excellent ideas. Let's prototype the top concept. Hurdler, what are the immediate obstacles?" },
-            { type: 'msg', agent: 'hurdler', content: "The main hurdles are: 1) Integrating with diverse banking APIs securely, and 2) Ensuring the AI's predictions are accurate enough to be trusted. These are solvable." },
-            { type: 'phase', phase: 4 },
-            { type: 'msg', agent: 'director', content: "The path seems clear. Let's finalize the concept. Storyteller, craft the pitch." },
-            { type: 'call_gemini', task: 'finalize', agent: 'storyteller' },
-            { type: 'end' }
-        ];
-
-        // --- DOM Elements ---
-        const agentListContainerEl = document.getElementById('agent-list-container');
-        const phaseStepperEl = document.getElementById('phase-stepper');
-        const metricsContainerEl = document.getElementById('metrics-container');
-        const startBtn = document.getElementById('start-btn');
-        const pauseBtn = document.getElementById('pause-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const statusEl = document.getElementById('sim-status');
-        const feedEl = document.getElementById('live-feed');
-        const insightsCard = document.getElementById('insights-card');
-        const insightsList = document.getElementById('insights-list');
-        const ideasCard = document.getElementById('ideas-card');
-        const ideasList = document.getElementById('ideas-list');
-        const finalConceptCard = document.getElementById('final-concept-card');
-        const finalConceptContent = document.getElementById('final-concept-content');
-        const speedSlider = document.getElementById('speed-slider');
-        const generateChallengeBtn = document.getElementById('generate-challenge-btn');
-        const designChallengeTextarea = document.getElementById('design-challenge');
-        const loadingSpinner = document.getElementById('loading-spinner');
-
-        // --- State ---
-        let simInterval;
-        let scriptIndex = 0;
-        let isPaused = false;
-        let currentPhase = -1;
-        let isCallingAPI = false;
-        let collectedInsights = [];
-        let collectedIdeas = [];
-
-        // --- Gemini API Call ---
-        async function callGemini(prompt) {
-            isCallingAPI = true;
-            loadingSpinner.classList.remove('hidden');
-            
-            const apiKey = ""; // Leave blank
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-            
-            const payload = {
-                contents: [{
-                    role: "user",
-                    parts: [{ text: prompt }]
-                }]
-            };
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.statusText}`);
-                }
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0) {
-                    return result.candidates[0].content.parts[0].text;
-                }
-                return "The model could not generate a response.";
-            } catch (error) {
-                console.error("Gemini API call failed:", error);
-                return `Error: Could not connect to the AI model. ${error.message}`;
-            } finally {
-                isCallingAPI = false;
-                loadingSpinner.classList.add('hidden');
-            }
-        }
-        
-        // --- UI Rendering ---
-        function renderAgents() {
-            const groupedAgents = agents.reduce((acc, agent) => {
-                const category = agent.category;
-                if (!acc[category]) {
-                    acc[category] = [];
-                }
-                acc[category].push(agent);
-                return acc;
-            }, {});
-
-            agentListContainerEl.innerHTML = '';
-            for (const category in groupedAgents) {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.innerHTML = `<h3 class="text-md font-semibold text-gray-400 mb-2">${category} Personas</h3>`;
-                
-                const ul = document.createElement('ul');
-                ul.className = 'space-y-3';
-
-                groupedAgents[category].forEach(agent => {
-                    const li = document.createElement('li');
-                    li.className = 'flex items-center justify-between bg-gray-900 p-2 rounded-md';
-                    li.innerHTML = `
-                        <div class="flex items-center space-x-3">
-                            <span class="text-xl">${agent.avatar}</span>
-                            <span class="font-medium text-sm">${agent.name}</span>
-                            <div class="tooltip">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                <span class="tooltiptext">${agent.role}</span>
-                            </div>
-                        </div>
-                        <label class="inline-flex items-center cursor-pointer">
-                            <input type="checkbox" value="${agent.id}" class="sr-only peer agent-toggle" checked>
-                            <div class="relative w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                    `;
-                    ul.appendChild(li);
-                });
-                categoryDiv.appendChild(ul);
-                agentListContainerEl.appendChild(categoryDiv);
-            }
-        }
-
-        function renderPhaseStepper() {
-            phaseStepperEl.innerHTML = '';
-            phases.forEach((phase, index) => {
-                const li = document.createElement('li');
-                const isActive = index === currentPhase;
-                const isCompleted = index < currentPhase;
-                
-                let stateClass = 'text-gray-500';
-                let icon = '⚪';
-                if(isActive) {
-                    stateClass = 'text-blue-400 font-semibold';
-                    icon = '🔵';
-                }
-                if(isCompleted) {
-                    stateClass = 'text-green-400';
-                    icon = '🟢';
-                }
-
-                li.className = `flex items-center space-x-2 text-sm ${stateClass}`;
-                li.innerHTML = `<span>${icon}</span> <span>${phase}</span>`;
-                phaseStepperEl.appendChild(li);
-            });
-        }
-
-        function renderMetrics() {
-            metricsContainerEl.innerHTML = `
+    <!-- Main Content Area -->
+    <div id="main-content" class="flex-grow flex flex-col overflow-hidden">
+        <!-- Mission Control View -->
+        <div id="mission-control-view" class="view flex-grow h-full flex-col lg:flex-row">
+            <div id="mc-setup-pane" class="w-full lg:w-1/3 bg-gray-800/50 p-6 flex flex-col space-y-6 overflow-y-auto custom-scrollbar">
+                <header>
+                    <h1 class="text-2xl font-bold text-white">Simulation Setup</h1>
+                    <p class="text-sm text-gray-400">Configure & oversee your agent crew</p>
+                </header>
                 <div class="space-y-2">
-                    <div>
-                        <span class="text-sm font-medium">Novelty</span>
-                        <div class="w-full bg-gray-600 rounded-full h-2.5"><div id="novelty-bar" class="bg-purple-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                    <div class="flex justify-between items-center">
+                         <label for="design-challenge" class="text-sm font-medium text-gray-300">Design Challenge</label>
+                         <button id="generate-challenge-btn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded-md flex items-center transition">Generate ✨</button>
                     </div>
-                    <div>
-                        <span class="text-sm font-medium">Feasibility</span>
-                        <div class="w-full bg-gray-600 rounded-full h-2.5"><div id="feasibility-bar" class="bg-green-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                    <textarea id="design-challenge" rows="4" class="w-full bg-gray-700 border-gray-600 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter a keyword like 'freelancer banking' and click Generate..."></textarea>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-lg font-semibold text-white">Team Composition</h2>
+                        <button id="edit-team-btn" class="text-xs bg-gray-600 hover:bg-gray-500 text-white font-semibold py-1 px-2 rounded-md flex items-center transition"><i class="fas fa-pencil-alt mr-2"></i>Edit</button>
                     </div>
-                    <div>
-                        <span class="text-sm font-medium">User-Centricity</span>
-                        <div class="w-full bg-gray-600 rounded-full h-2.5"><div id="user-centricity-bar" class="bg-sky-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                    <div id="agent-edit-panel" class="hidden">
+                        <div id="agent-list-container" class="space-y-4"></div>
+                        <button id="confirm-team-btn" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"><i class="fas fa-check mr-2"></i>Confirm Changes</button>
                     </div>
                 </div>
-            `;
-        }
-        
-        function addMessageToFeed(agent, content, type = 'msg', isAI = false) {
-            const agentData = agents.find(a => a.id === agent) || {};
-            const div = document.createElement('div');
-            
-            let messageContent = '';
-            let bgColor = 'bg-gray-800';
-            
-            switch(type) {
-                case 'thought':
-                    messageContent = `<p class="italic text-gray-400">🧠 ${content}</p>`;
-                    bgColor = 'bg-transparent';
-                    break;
-                case 'tool':
-                    messageContent = `<p class="font-mono text-sm text-yellow-300 bg-black/30 p-2 rounded-md">🔧 ${content}</p>`;
-                    bgColor = 'bg-transparent';
-                    break;
-                default:
-                    messageContent = `<p>${content}</p>`;
-                    break;
-            }
-
-            div.className = `p-4 rounded-lg flex items-start space-x-4 ${bgColor}`;
-            div.innerHTML = `
-                <span class="text-2xl">${agentData.avatar || '🤖'}</span>
-                <div class="flex-1">
-                    <p class="font-semibold text-white">${agentData.name || 'System'} ${isAI ? '✨' : ''}</p>
-                    <div class="text-gray-300 text-sm">${messageContent}</div>
+                <div class="bg-gray-700 p-4 rounded-lg space-y-4">
+                    <h3 class="text-md font-semibold text-white">Controls</h3>
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm">Status: <span id="sim-status" class="font-semibold text-yellow-400">Idle</span></p>
+                        <div id="loading-spinner" class="loader hidden"></div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"></button>
+                        <button id="pause-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition" disabled></button>
+                        <button id="reset-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"></button>
+                    </div>
+                     <div>
+                        <label for="speed-slider" class="text-sm font-medium text-gray-300">Simulation Speed</label>
+                        <input id="speed-slider" type="range" min="1" max="5" value="3" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                    </div>
                 </div>
-            `;
-            feedEl.appendChild(div);
-            feedEl.scrollTop = feedEl.scrollHeight;
-        }
+            </div>
+            <main id="mc-feed-pane" class="w-full lg:w-2/3 bg-gray-900 flex flex-col p-4 overflow-hidden">
+                <div id="live-feed" class="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-6"></div>
+            </main>
+        </div>
 
-        // --- Simulation Logic ---
-        async function processScriptStep() {
-            if (isPaused || scriptIndex >= simulationFlow.length || isCallingAPI) {
-                if(scriptIndex >= simulationFlow.length) stopSimulation();
-                return;
-            }
-
-            const step = simulationFlow[scriptIndex];
-
-            if (step.type === 'phase') {
-                currentPhase = step.phase;
-                renderPhaseStepper();
-            } else if (step.type === 'insight') {
-                insightsCard.classList.remove('hidden');
-                const li = document.createElement('li');
-                li.textContent = step.content;
-                insightsList.appendChild(li);
-                collectedInsights.push(step.content);
-                document.getElementById('user-centricity-bar').style.width = `${Math.random() * 20 + 70}%`;
-            } else if (step.type === 'msg') {
-                const challenge = designChallengeTextarea.value;
-                const content = typeof step.content === 'function' ? step.content(challenge, collectedInsights) : step.content;
-                addMessageToFeed(step.agent, content, step.thought ? 'thought' : 'msg');
-            } else if (step.type === 'tool'){
-                addMessageToFeed(step.agent, step.content, 'tool');
-            } else if (step.type === 'call_gemini') {
-                const challenge = designChallengeTextarea.value;
-                let prompt = '';
-                if (step.task === 'ideate') {
-                    prompt = `You are the ${agents.find(a=>a.id === step.agent).name}. Your team is working on the challenge: "${challenge}". Key user insights are: "${collectedInsights.join(', ')}". Brainstorm 2 creative ideas to solve this. Present them as a numbered list.`;
-                    addMessageToFeed(step.agent, 'Thinking of some creative ideas...', 'thought');
-                    const ideasText = await callGemini(prompt);
-                    const ideas = ideasText.split('\n').filter(line => line.match(/^\d\./));
-                    ideasList.innerHTML = '';
-                    ideasCard.classList.remove('hidden');
-                    ideas.forEach(idea => {
-                        const cleanIdea = idea.replace(/^\d\.\s*/, '');
-                        const li = document.createElement('li');
-                        li.textContent = cleanIdea;
-                        ideasList.appendChild(li);
-                        collectedIdeas.push(cleanIdea);
-                    });
-                     addMessageToFeed(step.agent, `Here are a couple of ideas I came up with:\n${ideasText}`, 'msg', true);
-                    document.getElementById('novelty-bar').style.width = `${Math.random() * 20 + 60}%`;
-                } else if (step.task === 'finalize') {
-                    prompt = `You are the Storyteller. Your team worked on the challenge: "${challenge}". Key insights were: "${collectedInsights.join('. ')}". The chosen ideas were: "${collectedIdeas.join('. ')}". Write a compelling final product pitch to present this as a single, coherent concept. Start with a catchy name.`;
-                    addMessageToFeed(step.agent, 'Crafting the final narrative...', 'thought');
-                    const finalConceptText = await callGemini(prompt);
-                    finalConceptCard.classList.remove('hidden');
-                    finalConceptContent.innerHTML = finalConceptText.replace(/\n/g, '<br>');
-                    addMessageToFeed(step.agent, finalConceptText, 'msg', true);
-                     document.getElementById('feasibility-bar').style.width = `${Math.random() * 20 + 75}%`;
-                }
-            } else if (step.type === 'end') {
-                stopSimulation();
-                statusEl.textContent = 'Completed';
-                statusEl.className = 'font-semibold text-green-400';
-            }
-
-            scriptIndex++;
-        }
-
-        // --- Control Functions ---
-        function startSimulation() {
-             if (scriptIndex >= simulationFlow.length || designChallengeTextarea.value.trim() === '') {
-                 alert("Please provide a design challenge before starting.");
-                 return;
-             }
-            const activeAgents = Array.from(document.querySelectorAll('.agent-toggle:checked')).map(el => el.value);
-            console.log("Starting simulation with active agents:", activeAgents);
-
-            startBtn.disabled = true;
-            pauseBtn.disabled = false;
-            isPaused = false;
-            statusEl.textContent = 'Running...';
-            statusEl.className = 'font-semibold text-blue-400';
-            const speed = (6 - speedSlider.value) * 800;
-            simInterval = setInterval(processScriptStep, speed);
-        }
-
-        function pauseSimulation() { 
-            isPaused = !isPaused;
-            if (isPaused) {
-                clearInterval(simInterval);
-                pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>'; // Play icon
-                statusEl.textContent = 'Paused';
-                statusEl.className = 'font-semibold text-yellow-400';
-
-            } else {
-                startSimulation();
-                pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>'; // Pause icon
-            }
-        }
-        function stopSimulation() {
-            clearInterval(simInterval);
-            startBtn.disabled = true;
-            pauseBtn.disabled = true;
-        }
-
-        function resetSimulation() {
-            clearInterval(simInterval);
-            scriptIndex = 0;
-            currentPhase = -1;
-            isPaused = false;
-            isCallingAPI = false;
-            collectedInsights = [];
-            collectedIdeas = [];
-            
-            feedEl.innerHTML = `<div class="text-center text-gray-500"><p>Simulation reset. Ready to begin.</p></div>`;
-            
-            insightsList.innerHTML = '';
-            insightsCard.classList.add('hidden');
-            if (ideasList) ideasList.innerHTML = '';
-            ideasCard.classList.add('hidden');
-            if (finalConceptContent) finalConceptContent.innerHTML = '';
-            finalConceptCard.classList.add('hidden');
-
-            renderPhaseStepper();
-            renderMetrics();
-            
-            startBtn.disabled = false;
-            pauseBtn.disabled = true;
-            statusEl.textContent = 'Idle';
-            statusEl.className = 'font-semibold text-yellow-400';
-        }
-
-        async function handleGenerateChallenge() {
-            const keyword = designChallengeTextarea.value.trim();
-            if (!keyword) {
-                alert("Please enter a keyword first (e.g., 'sustainable packaging').");
-                return;
-            }
-            const prompt = `You are a design thinking facilitator. Expand the following keyword into a rich, detailed, and inspiring design challenge for a creative team. Make it specific and actionable. KEYWORD: "${keyword}"`;
-            designChallengeTextarea.value = "Generating challenge with AI...";
-            designChallengeTextarea.disabled = true;
-            const result = await callGemini(prompt);
-            designChallengeTextarea.value = result;
-            designChallengeTextarea.disabled = false;
-        }
-
-        // --- Event Listeners ---
-        startBtn.addEventListener('click', () => {
-             if (scriptIndex === 0) feedEl.innerHTML = '';
-             startSimulation();
-        });
-        pauseBtn.addEventListener('click', pauseSimulation);
-        resetBtn.addEventListener('click', resetSimulation);
-        speedSlider.addEventListener('input', () => {
-            if (simInterval && !isPaused) {
-                clearInterval(simInterval);
-                startSimulation();
-            }
-        });
-        generateChallengeBtn.addEventListener('click', handleGenerateChallenge);
-
-        // --- Initial Load ---
+        <!-- Phase Views -->
+        <div id="empathize-view" class="view flex-grow h-full flex-col">
+            <header class="p-4 border-b border-gray-700"><h2 class="text-xl font-bold">Empathize Phase Whiteboard</h2></header>
+            <div class="flex-grow p-6 overflow-y-auto custom-scrollbar">
+                <div id="empathize-chat-log" class="space-y-4">
+                    <div id="insights-card" class="bg-gray-800 p-4 rounded-lg hidden">
+                        <h4 class="font-semibold text-white">Key User Insights ✨</h4>
+                        <ul id="insights-list" class="list-disc list-inside text-sm text-gray-300 mt-2 space-y-1"></ul>
+                    </div>
+                </div>
+            </div>
+            <footer class="p-4 border-t border-gray-700 bg-gray-800">
+                <div class="relative">
+                    <input type="text" data-phase="empathize" class="chat-input w-full bg-gray-700 rounded-full py-2 pl-4 pr-12 text-sm" placeholder="Ask the Anthropologist to elaborate...">
+                    <button class="chat-send-btn absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </footer>
+        </div>
+        <div id="define-view" class="view flex-grow h-full flex-col">
+             <header class="p-4 border-b border-gray-700"><h2 class="text-xl font-bold">Define Phase Whiteboard</h2></header>
+             <div class="flex-grow p-6 overflow-y-auto custom-scrollbar">
+                <div id="define-chat-log" class="space-y-4">
+                    <div id="problem-statement-card" class="bg-gray-800 p-4 rounded-lg hidden">
+                       <h4 class="font-semibold text-white">Problem Statement</h4>
+                       <p id="problem-statement-text" class="mt-2 text-sm text-gray-300"></p>
+                    </div>
+                </div>
+             </div>
+             <footer class="p-4 border-t border-gray-700 bg-gray-800">
+               <div class="relative">
+                   <input type="text" data-phase="define" class="chat-input w-full bg-gray-700 rounded-full py-2 pl-4 pr-12 text-sm" placeholder="Ask the Director to reframe...">
+                   <button class="chat-send-btn absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white"><i class="fas fa-paper-plane"></i></button>
+               </div>
+             </footer>
+        </div>
+        <div id="ideate-view" class="view flex-grow h-full flex-col">
+            <header class="p-4 border-b border-gray-700"><h2 class="text-xl font-bold">Ideate Phase Whiteboard</h2></header>
+            <div class="flex-grow p-6 overflow-y-auto custom-scrollbar">
+                <div id="ideate-chat-log" class="space-y-4">
+                     <div id="ideas-card" class="bg-gray-800 p-4 rounded-lg hidden">
+                        <h4 class="font-semibold text-white">Generated Ideas ✨</h4>
+                        <ul id="ideas-list" class="list-decimal list-inside text-sm text-gray-300 mt-2 space-y-1"></ul>
+                    </div>
+                </div>
+            </div>
+            <footer class="p-4 border-t border-gray-700 bg-gray-800">
+                <div class="relative">
+                    <input type="text" data-phase="ideate" class="chat-input w-full bg-gray-700 rounded-full py-2 pl-4 pr-12 text-sm" placeholder="Ask the Collaborator to combine ideas...">
+                    <button class="chat-send-btn absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </footer>
+        </div>
+        <div id="prototype-test-view" class="view flex-grow h-full flex-col">
+             <header class="p-4 border-b border-gray-700"><h2 class="text-xl font-bold">Prototype & Test Phase Whiteboard</h2></header>
+             <div class="flex-grow p-6 overflow-y-auto custom-scrollbar">
+                <div id="prototype-chat-log" class="space-y-4">
+                    <div id="hurdler-card" class="bg-gray-800 p-4 rounded-lg hidden">
+                        <h4 class="font-semibold text-white">Hurdler's Analysis ✨</h4>
+                        <div id="hurdler-analysis-text" class="mt-2 text-sm text-gray-300"></div>
+                    </div>
+                </div>
+             </div>
+             <footer class="p-4 border-t border-gray-700 bg-gray-800">
+                <div class="relative">
+                    <input type="text" data-phase="prototype" class="chat-input w-full bg-gray-700 rounded-full py-2 pl-4 pr-12 text-sm" placeholder="Ask the Experimenter for a testing plan...">
+                    <button class="chat-send-btn absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white"><i class="fas fa-paper-plane"></i></button>
+                </div>
+             </footer>
+        </div>
+        <div id="finalize-view" class="view flex-grow h-full flex-col">
+             <header class="p-4 border-b border-gray-700"><h2 class="text-xl font-bold">Final Concept</h2></header>
+             <div class="flex-grow p-6 overflow-y-auto custom-scrollbar">
+                <div id="finalize-chat-log" class="space-y-4">
+                    <div id="final-concept-card" class="bg-blue-900/50 border border-blue-500 p-6 rounded-lg hidden">
+                        <h4 class="text-lg font-semibold text-blue-300">Final Pitch ✨</h4>
+                        <div id="final-concept-content" class="mt-4 text-sm prose prose-invert"></div>
+                    </div>
+                </div>
+             </div>
+             <footer class="p-4 border-t border-gray-700 bg-gray-800">
+                 <div class="relative">
+                    <input type="text" data-phase="finalize" class="chat-input w-full bg-gray-700 rounded-full py-2 pl-4 pr-12 text-sm" placeholder="Ask the Storyteller to add a tagline...">
+                    <button class="chat-send-btn absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white"><i class="fas fa-paper-plane"></i></button>
+                </div>
+             </footer>
+        </div>
+    </div>
+    
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
-            renderAgents();
+            // --- DATA ---
+            const agents = [
+                { id: 'anthropologist', name: 'Anthropologist', role: 'Observes human behavior to find deep, unbiased user insights.', avatar: '🌍', category: 'Learning' },
+                { id: 'experimenter', name: 'Experimenter', role: 'Tests assumptions and prototypes ideas to gather data.', avatar: '🧪', category: 'Learning' },
+                { id: 'cross-pollinator', name: 'Cross-Pollinator', role: 'Draws connections between unrelated fields to spark new ideas.', avatar: '🐝', category: 'Learning' },
+                { id: 'director', name: 'Director', role: 'Manages the overall process and team.', avatar: '👑', category: 'Organizing' },
+                { id: 'collaborator', name: 'Collaborator', role: 'Facilitates teamwork and ensures all voices are heard.', avatar: '🤝', category: 'Organizing' },
+                { id: 'hurdler', name: 'Hurdler', role: 'Identifies obstacles and finds pragmatic solutions to overcome them.', avatar: '🚧', category: 'Organizing' },
+                { id: 'experience-architect', name: 'Experience Architect', role: 'Designs compelling user journeys and interactions.', avatar: '🏗️', category: 'Building' },
+                { id: 'set-designer', name: 'Set Designer', role: 'Designs the environment where the experience takes place.', avatar: '🖼️', category: 'Building' },
+                { id: 'caregiver', name: 'Caregiver', role: 'Focuses on customer service and the user relationship.', avatar: '❤️', category: 'Building' },
+                { id: 'storyteller', name: 'Storyteller', role: 'Crafts compelling narratives around the product and its value.', avatar: '📜', category: 'Building' },
+            ];
+            const phases = ['Empathize', 'Define', 'Ideate', 'Prototype & Test', 'Finalize'];
+            const simulationFlow = [
+                // --- PHASE 0: EMPATHIZE ---
+                { type: 'phase', phase: 0 }, // Switches view to Empathize
+
+                // KICK-OFF
+                {
+                    type: 'msg',
+                    agent: 'director',
+                    content: (challenge) => `Alright team, our mission is: "${challenge}". Let's dive into the Empathize phase. Our goal is to deeply understand the user's world. Anthropologist, please lead the initial qualitative research. Experimenter, think about our core assumptions. Cross-Pollinator, look for analogous problems.`
+                },
+
+                // INITIAL RESEARCH & PLANNING (Parallel Tracks)
+                {
+                    type: 'msg',
+                    agent: 'anthropologist',
+                    thought: 'I need to understand the human element. I\'ll start by looking for personal stories and discussions in online communities.'
+                },
+                {
+                    type: 'tool',
+                    agent: 'anthropologist',
+                    content: 'search_web("forums and reddit discussions about freelancer financial struggles")'
+                },
+                {
+                    type: 'call_gemini', // AI call to synthesize findings into personas/insights
+                    task: 'generate_insight', // This task would now generate richer output
+                    agent: 'anthropologist'
+                },
+                {
+                    type: 'msg',
+                    agent: 'experimenter',
+                    thought: 'While the Anthropologist does qualitative research, I can test a core assumption: Do users even want another budgeting tool? I will design a quick validation test.',
+                    content: 'I\'m setting up a validation board to track our assumptions. First assumption: "Users are actively seeking new tools to manage unpredictable income."'
+                },
+                {
+                    type: 'msg',
+                    agent: 'cross-pollinator',
+                    thought: 'I\'ll look outside the immediate problem space. How do other industries handle variable supply/demand? Like logistics or agriculture.',
+                    content: 'I\'m starting an "Analogous Inspiration" search. I\'m looking at how industries like gaming and farming handle resource volatility.'
+                },
+
+                // MID-PHASE CHECK & DEEPENING
+                {
+                    type: 'msg',
+                    agent: 'hurdler',
+                    thought: 'The Anthropologist is focused on online forums. I need to point out a potential bias.',
+                    content: 'A flag, team: The online forums we are analyzing might skew towards a more tech-savvy, vocal minority. We should be careful not to over-index on their specific complaints.'
+                },
+                {
+                    type: 'msg',
+                    agent: 'caregiver',
+                    thought: 'I can ground this with real data we already have.',
+                    content: 'Good point, Hurdler. I\'ve pulled our customer support logs from the last 6 months. A key theme is frustration around year-end tax preparation, which supports the "unpredictable income" pain point.'
+                },
+                {
+                    type: 'msg',
+                    agent: 'storyteller',
+                    content: 'I\'m capturing these initial findings. A powerful anecdote from the forums: "I love the freedom of freelance, but I live in constant, low-grade fear of tax season."'
+                },
+
+                // SYNTHESIS & TRANSITION
+                {
+                    type: 'msg',
+                    agent: 'collaborator',
+                    thought: 'It\'s time to bring these different threads together.',
+                    content: 'Great work, everyone. I\'ve set up a digital whiteboard for our Synthesis Session. Please add your key findings. Let\'s cluster these insights to find the core themes.'
+                },
+
+                // --- PHASE 1: DEFINE ---
+                { type: 'phase', phase: 1 }, // Switch to Define view
+                {
+                    type: 'msg',
+                    agent: 'director',
+                    // This message now uses the synthesized insights, which are richer than before.
+                    content: (challenge, insights) => `Excellent synthesis. Based on all that, it's clear the core problem isn't just about budgeting, it's about reducing financial anxiety. Let's move to the Define phase with that focus.`
+                },
+
+                // ... (The rest of the flow for Define, Ideate, etc. would follow) ...
+                { type: 'phase', phase: 2 },
+                { type: 'msg', agent: 'director', content: "Time to Ideate. Based on that problem, let's brainstorm solutions." },
+                { type: 'call_gemini', task: 'ideate', agent: 'experience-architect' },
+                { type: 'phase', phase: 3 },
+                { type: 'msg', agent: 'director', content: "Excellent ideas. Let's prototype the top concept. Hurdler, what are the immediate obstacles?" },
+                { type: 'call_gemini', task: 'analyze_obstacles', agent: 'hurdler' },
+                { type: 'phase', phase: 4 },
+                { type: 'msg', agent: 'director', content: "The path seems clear. Let's finalize the concept. Storyteller, craft the pitch." },
+                { type: 'call_gemini', task: 'finalize', agent: 'storyteller' },
+                { type: 'end' }
+            ];
+
+            // --- DOM Elements ---
+            const mainNav = document.getElementById('main-nav');
+            const agentListContainerEl = document.getElementById('agent-list-container');
+            const editTeamBtn = document.getElementById('edit-team-btn');
+            const agentEditPanel = document.getElementById('agent-edit-panel');
+            const confirmTeamBtn = document.getElementById('confirm-team-btn');
+            const startBtn = document.getElementById('start-btn');
+            const pauseBtn = document.getElementById('pause-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const statusEl = document.getElementById('sim-status');
+            const feedEl = document.getElementById('live-feed');
+            const speedSlider = document.getElementById('speed-slider');
+            const generateChallengeBtn = document.getElementById('generate-challenge-btn');
+            const designChallengeTextarea = document.getElementById('design-challenge');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            // --- State ---
+            let simInterval;
+            let scriptIndex = 0;
+            let isPaused = false;
+            let currentPhase = -1;
+            let isCallingAPI = false;
+            let collectedInsights = [];
+            let collectedIdeas = [];
+
+            // --- Gemini API Call ---
+            async function callGemini(prompt) {
+                isCallingAPI = true;
+                loadingSpinner.classList.remove('hidden');
+                console.log("LOG: Calling Gemini API with prompt:", prompt);
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+                        console.log("LOG: Gemini API response received.");
+                        return result.candidates[0].content.parts[0].text;
+                    }
+                    return "The model could not generate a response.";
+                } catch (error) {
+                    console.error("Gemini API call failed:", error);
+                    return `Error: Could not connect to the AI model. ${error.message}`;
+                } finally {
+                    isCallingAPI = false;
+                    loadingSpinner.classList.add('hidden');
+                }
+            }
             
+            // --- UI Rendering ---
+            function renderAgents() {
+                const groupedAgents = agents.reduce((acc, agent) => {
+                    const category = agent.category;
+                    if (!acc[category]) acc[category] = [];
+                    acc[category].push(agent);
+                    return acc;
+                }, {});
+
+                agentListContainerEl.innerHTML = '';
+                for (const category in groupedAgents) {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.innerHTML = `<h3 class="text-md font-semibold text-gray-400 mb-2">${category} Personas</h3>`;
+                    
+                    const ul = document.createElement('ul');
+                    ul.className = 'space-y-3';
+
+                    groupedAgents[category].forEach(agent => {
+                        const li = document.createElement('li');
+                        li.className = 'flex items-center justify-between bg-gray-900 p-2 rounded-md';
+                        li.innerHTML = `
+                            <div class="flex items-center space-x-3">
+                                <span class="text-xl">${agent.avatar}</span>
+                                <span class="font-medium text-sm">${agent.name}</span>
+                            </div>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" value="${agent.id}" class="sr-only peer agent-toggle" checked>
+                                <div class="relative w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        `;
+                        ul.appendChild(li);
+                    });
+                    categoryDiv.appendChild(ul);
+                    agentListContainerEl.appendChild(categoryDiv);
+                }
+            }
+            
+            function addMessageToFeed(agentId, content, type = 'msg', isAI = false) {
+                const agentData = agents.find(a => a.id === agentId) || {};
+                const div = document.createElement('div');
+                let messageContent = ''; let bgColor = 'bg-gray-800';
+                
+                switch(type) {
+                    case 'thought': messageContent = `<p class="italic text-gray-400">🧠 ${content}</p>`; bgColor = 'bg-transparent'; break;
+                    case 'tool': messageContent = `<p class="font-mono text-sm text-yellow-300 bg-black/30 p-2 rounded-md">🔧 ${content}</p>`; bgColor = 'bg-transparent'; break;
+                    default: messageContent = `<p>${content.replace(/\n/g, '<br>')}</p>`; break;
+                }
+
+                div.className = `p-4 rounded-lg flex items-start space-x-4 ${bgColor}`;
+                div.innerHTML = `
+                    <span class="text-2xl">${agentData.avatar || '🤖'}</span>
+                    <div class="flex-1">
+                        <p class="font-semibold text-white">${agentData.name || 'System'} ${isAI ? '✨' : ''}</p>
+                        <div class="text-gray-300 text-sm">${messageContent}</div>
+                    </div>
+                `;
+                feedEl.appendChild(div);
+                feedEl.scrollTop = feedEl.scrollHeight;
+            }
+
+            // --- Simulation Logic ---
+            async function processScriptStep() {
+                if (isPaused || scriptIndex >= simulationFlow.length || isCallingAPI) {
+                    if(scriptIndex >= simulationFlow.length) stopSimulation();
+                    return;
+                }
+
+                const step = simulationFlow[scriptIndex];
+                const activeAgents = Array.from(document.querySelectorAll('.agent-toggle:checked')).map(el => el.value);
+                if (step.agent && !activeAgents.includes(step.agent) && step.agent !== 'director') {
+                    console.log(`LOG: Skipping step for inactive agent: ${step.agent}`);
+                    scriptIndex++;
+                    processScriptStep();
+                    return;
+                }
+
+                if (step.type === 'phase') {
+                    currentPhase = step.phase;
+                    const phaseId = phases[currentPhase].toLowerCase().replace(/ & /g, '-').replace(' ', '-');
+                    switchView(`${phaseId}-view`);
+                } else if (step.type === 'msg') {
+                    const challenge = designChallengeTextarea.value;
+                    const content = typeof step.content === 'function' ? step.content(challenge, collectedInsights) : step.content;
+                    addMessageToFeed(step.agent, content, step.thought ? 'thought' : 'msg');
+                    if (step.agent === 'director' && currentPhase === 1) {
+                         const problemCard = document.querySelector('#define-view #problem-statement-card');
+                         if (problemCard) {
+                             problemCard.classList.remove('hidden');
+                             document.querySelector('#define-view #problem-statement-text').textContent = content.split("'")[1] || content;
+                         }
+                    }
+                } else if (step.type === 'tool'){
+                    addMessageToFeed(step.agent, step.content, 'tool');
+                } else if (step.type === 'call_gemini') {
+                    const challenge = designChallengeTextarea.value;
+                    let prompt = '';
+                    const agentName = agents.find(a=>a.id === step.agent).name;
+                    addMessageToFeed(step.agent, 'Thinking...', 'thought');
+                    
+                    if (step.task === 'generate_insight') {
+                        prompt = `You are the ${agentName}. Your team is tackling the challenge: "${challenge}". What are the three most important user insight to focus on in your opinion? State it clearly in a few sentences.`;
+                        const insightText = await callGemini(prompt);
+                        const insightsCardEl = document.querySelector('#empathize-view #insights-card');
+                        const insightsListEl = document.querySelector('#empathize-view #insights-list');
+                        if (insightsCardEl && insightsListEl) {
+                             insightsCardEl.classList.remove('hidden');
+                             const li = document.createElement('li');
+                             li.textContent = insightText;
+                             insightsListEl.appendChild(li);
+                        }
+                        collectedInsights.push(insightText);
+                        addMessageToFeed(step.agent, `I've synthesized the research. Here's the key insight:\n"${insightText}"`, 'msg', true);
+                    } else if (step.task === 'ideate') {
+                        prompt = `You are the ${agentName}. Your team is working on the challenge: "${challenge}". Key user insights are: "${collectedInsights.join(', ')}". Brainstorm 2 creative ideas to solve this. Present them as a numbered list.`;
+                        const ideasText = await callGemini(prompt);
+                        const ideas = ideasText.split('\n').filter(line => line.match(/^\d\./));
+                        const ideasCardEl = document.querySelector('#ideate-view #ideas-card');
+                        const ideasListEl = document.querySelector('#ideate-view #ideas-list');
+                        if (ideasCardEl && ideasListEl) {
+                            ideasCardEl.classList.remove('hidden');
+                            ideasListEl.innerHTML = '';
+                             ideas.forEach(idea => {
+                                const cleanIdea = idea.replace(/^\d\.\s*/, '');
+                                const li = document.createElement('li');
+                                li.textContent = cleanIdea;
+                                ideasListEl.appendChild(li);
+                                collectedIdeas.push(cleanIdea);
+                            });
+                        }
+                        addMessageToFeed(step.agent, `Here are a couple of ideas I came up with:\n${ideasText}`, 'msg', true);
+                    } else if (step.task === 'analyze_obstacles') {
+                        prompt = `You are the ${agentName}. Your team is considering these ideas: "${collectedIdeas.join('; ')}". What are the top 2-3 practical obstacles (technical, financial, or user adoption) for these ideas? For each obstacle, briefly suggest a potential solution.`;
+                        const analysisText = await callGemini(prompt);
+                         const hurdlerCardEl = document.querySelector('#prototype-test-view #hurdler-card');
+                         if(hurdlerCardEl) {
+                             hurdlerCardEl.classList.remove('hidden');
+                             document.querySelector('#prototype-test-view #hurdler-analysis-text').innerHTML = analysisText.replace(/\n/g, '<br>');
+                         }
+                        addMessageToFeed(step.agent, analysisText, 'msg', true);
+                    } else if (step.task === 'finalize') {
+                        prompt = `You are the ${agentName}. Your team worked on the challenge: "${challenge}". Key insights were: "${collectedInsights.join('. ')}". The chosen ideas were: "${collectedIdeas.join('. ')}". Write a compelling final product pitch to present this as a single, coherent concept. Start with a catchy name.`;
+                        const finalConceptText = await callGemini(prompt);
+                        const finalConceptCardEl = document.querySelector('#finalize-view #final-concept-card');
+                        if(finalConceptCardEl) {
+                             finalConceptCardEl.classList.remove('hidden');
+                             document.querySelector('#finalize-view #final-concept-content').innerHTML = finalConceptText.replace(/\n/g, '<br>');
+                        }
+                        addMessageToFeed(step.agent, finalConceptText, 'msg', true);
+                    }
+                } else if (step.type === 'end') {
+                    stopSimulation();
+                    statusEl.textContent = 'Completed';
+                    statusEl.className = 'font-semibold text-green-400';
+                }
+
+                scriptIndex++;
+            }
+
+            // --- Control Functions ---
+            function startSimulation() {
+                console.log("LOG: Start button clicked");
+                if (designChallengeTextarea.value.trim() === '') {
+                     alert("Please provide a design challenge before starting.");
+                     return;
+                }
+                const activeAgents = Array.from(document.querySelectorAll('.agent-toggle:checked')).map(el => el.value);
+                console.log("LOG: Starting simulation with active agents:", activeAgents);
+                
+                if (scriptIndex === 0 && feedEl) feedEl.innerHTML = '';
+                
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                isPaused = false;
+                statusEl.textContent = 'Running...';
+                statusEl.className = 'font-semibold text-blue-400';
+                const speed = (6 - speedSlider.value) * 800;
+                simInterval = setInterval(processScriptStep, speed);
+            }
+
+            function pauseSimulation() {
+                console.log("LOG: Pause/Resume button clicked");
+                isPaused = !isPaused;
+                if (isPaused) {
+                    clearInterval(simInterval);
+                    pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
+                    statusEl.textContent = 'Paused';
+                    statusEl.className = 'font-semibold text-yellow-400';
+
+                } else {
+                    statusEl.textContent = 'Running...';
+                    statusEl.className = 'font-semibold text-blue-400';
+                    const speed = (6 - speedSlider.value) * 800;
+                    simInterval = setInterval(processScriptStep, speed);
+                    pauseBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
+                }
+            }
+            function stopSimulation() {
+                console.log("LOG: Simulation stopped or completed");
+                clearInterval(simInterval);
+                startBtn.disabled = true;
+                pauseBtn.disabled = true;
+            }
+
+            function resetSimulation() {
+                console.log("LOG: Reset button clicked");
+                clearInterval(simInterval);
+                scriptIndex = 0;
+                currentPhase = -1;
+                isPaused = false;
+                isCallingAPI = false;
+                collectedInsights = [];
+                collectedIdeas = [];
+                
+                if(feedEl) feedEl.innerHTML = `<div class="text-center text-gray-500"><p>Simulation reset. Ready to begin.</p></div>`;
+                
+                document.querySelectorAll('.chat-log').forEach(log => { if(log) log.innerHTML = ''; });
+                document.querySelectorAll('#insights-card, #ideas-card, #problem-statement-card, #hurdler-card, #final-concept-card').forEach(card => card.classList.add('hidden'));
+
+                renderAgents();
+                
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                statusEl.textContent = 'Idle';
+                
+                agentEditPanel.classList.add('hidden');
+                editTeamBtn.classList.remove('hidden');
+
+                switchView('mission-control-view');
+            }
+
+            async function handleGenerateChallenge() {
+                console.log("LOG: Generate challenge button clicked");
+                const keyword = designChallengeTextarea.value.trim();
+                if (!keyword) {
+                    alert("Please enter a keyword first (e.g., 'sustainable packaging').");
+                    return;
+                }
+                const prompt = `You are a design thinking facilitator. Expand the following keyword into a rich, detailed, and inspiring design challenge for a creative team. Make it specific and actionable. KEYWORD: "${keyword}"`;
+                designChallengeTextarea.value = "Generating challenge with AI...";
+                designChallengeTextarea.disabled = true;
+                const result = await callGemini(prompt);
+                designChallengeTextarea.value = result;
+                designChallengeTextarea.disabled = false;
+            }
+
+            async function handlePhaseInteraction(event) {
+                const button = event.target.closest('.chat-send-btn');
+                const input = button ? button.previousElementSibling : event.target;
+                if (!input || (event.type === 'keyup' && event.key !== 'Enter')) return;
+                
+                const query = input.value.trim();
+                if (!query) return;
+
+                console.log(`LOG: Phase chat triggered in '${input.dataset.phase}' with query: '${query}'`);
+                const phase = input.dataset.phase;
+                const chatLogContainer = document.querySelector(`#${phase}-chat-log`);
+                if (!chatLogContainer) {
+                    console.error(`Chat log container for phase ${phase} not found.`);
+                    return;
+                }
+
+                const userMsgDiv = document.createElement('div');
+                userMsgDiv.className = 'p-3 rounded-lg bg-indigo-600 ml-auto text-right max-w-lg';
+                userMsgDiv.textContent = query;
+                chatLogContainer.appendChild(userMsgDiv);
+                
+                input.value = '';
+
+                let context = ''; let agentForTask = 'collaborator';
+                if (phase === 'ideate') { context = `Current ideas: ${collectedIdeas.join(', ')}.`; }
+                else if (phase === 'empathize') { context = `Key insights: ${collectedInsights.join(', ')}.`; agentForTask = 'anthropologist';}
+                else if (phase === 'define') { 
+                    const problemEl = document.getElementById('problem-statement-text');
+                    context = `Problem statement: ${problemEl ? problemEl.textContent : 'Not yet defined.'}`; 
+                    agentForTask = 'director';
+                }
+
+                const prompt = `You are the ${agentForTask} agent. A user is interacting with your team's whiteboard. ${context} The user's request is: "${query}". Provide a helpful, concise response.`;
+
+                const thinkingDiv = document.createElement('div');
+                thinkingDiv.className = 'p-3 rounded-lg bg-gray-700 mr-auto max-w-lg flex items-center space-x-2';
+                const agentData = agents.find(a => a.id === agentForTask) || {};
+                thinkingDiv.innerHTML = `<span class="text-xl">${agentData.avatar}</span><span>Thinking...</span>`;
+                chatLogContainer.appendChild(thinkingDiv);
+                
+                const aiResponse = await callGemini(prompt);
+                thinkingDiv.innerHTML = `<span class="text-xl">${agentData.avatar}</span><span>${aiResponse.replace(/\n/g, '<br>')}</span>`;
+                chatLogContainer.scrollTop = chatLogContainer.scrollHeight;
+            }
+            
+            // --- CORE EVENT LISTENERS ---
+            function switchView(viewId) {
+                console.log(`LOG: Switching view to: ${viewId}`);
+                document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+                document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                
+                const activeView = document.getElementById(viewId);
+                const activeLink = document.querySelector(`.nav-link[data-view="${viewId}"]`);
+
+                if (activeView) activeView.classList.add('active');
+                if (activeLink) activeLink.classList.add('active');
+            }
+
+            mainNav.addEventListener('click', (e) => {
+                const link = e.target.closest('.nav-link');
+                if (link) {
+                    e.preventDefault();
+                    switchView(link.getAttribute('data-view'));
+                }
+            });
+
+            startBtn.addEventListener('click', startSimulation);
+            pauseBtn.addEventListener('click', pauseSimulation);
+            resetBtn.addEventListener('click', resetSimulation);
+            generateChallengeBtn.addEventListener('click', handleGenerateChallenge);
+            
+            document.querySelectorAll('.chat-send-btn').forEach(btn => btn.addEventListener('click', handlePhaseInteraction));
+            document.querySelectorAll('.chat-input').forEach(input => {
+                input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handlePhaseInteraction(e); });
+            });
+            agentListContainerEl.addEventListener('click', (event) => {
+                const label = event.target.closest('label');
+                if (label) {
+                    const toggleInput = label.querySelector('.agent-toggle');
+                    console.log(`LOG: Agent ${toggleInput.value} is now ${toggleInput.checked ? 'ON' : 'OFF'}`);
+                }
+            });
+            editTeamBtn.addEventListener('click', () => {
+                console.log("LOG: Edit Team button clicked.");
+                agentEditPanel.classList.remove('hidden');
+                editTeamBtn.classList.add('hidden');
+            });
+
+            confirmTeamBtn.addEventListener('click', () => {
+                console.log("LOG: Confirm Team Changes button clicked.");
+                agentEditPanel.classList.add('hidden');
+                editTeamBtn.classList.remove('hidden');
+                const activeAgents = Array.from(document.querySelectorAll('.agent-toggle:checked')).map(el => el.value);
+                console.log("LOG: Final team selection:", activeAgents);
+            });
+
+            // --- Initial Load ---
             startBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
             pauseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
             resetBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>`;
             
+            renderAgents();
             resetSimulation();
+
+            Split(['#mc-setup-pane', '#mc-feed-pane'], {
+                sizes: [33, 67], minSize: 300, gutterSize: 8, cursor: 'col-resize',
+            });
         });
     </script>
 </body>
