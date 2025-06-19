@@ -5,11 +5,11 @@ import google.generativeai as genai
 
 # --- Import from our structured repository ---
 # This assumes you are running `python app.py` from the root directory.
-from src.design_thinking_sim.config import settings
+from src.project_ideate.config import settings
 
 # --- Configuration ---
 # The 'template_folder' argument tells Flask where to find the HTML files.
-app = Flask(__name__, template_folder='src/design_thinking_sim/templates')
+app = Flask(__name__, template_folder='src/project_ideate/templates')
 CORS(app)
 
 # Configure the Gemini API key from our settings file
@@ -30,6 +30,20 @@ def call_gemini_api(prompt):
         return f"An error occurred while contacting the AI model: {e}"
 
 # --- API Endpoints ---
+
+@app.route('/api/key', methods=['GET'])
+def get_gemini_api_key():
+    """
+    Endpoint to serve the Gemini API key from environment variables.
+    """
+    api_key = settings.GEMINI_API_KEY
+
+    if not api_key:
+        # Return an error if the key is not found (good for debugging)
+        return jsonify({"error": "API key not configured in environment variables"}), 500
+
+    # Return the key (securely as JSON)
+    return jsonify({"apiKey": api_key})
 
 @app.route('/')
 def index():
@@ -99,5 +113,5 @@ def run_simulation():
 
 # --- Main Execution ---
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5000)
 
