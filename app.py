@@ -13,8 +13,8 @@ app = Flask(__name__, template_folder='src/project_ideate/templates')
 CORS(app)
 
 # Configure the Gemini API key from our settings file
-if settings.google_api_key:
-    genai.configure(api_key=settings.google_api_key)
+if settings.GEMINI_API_KEY:
+    genai.configure(api_key=settings.GEMINI_API_KEY)
 
 # --- Helper Function ---
 def call_gemini_api(prompt):
