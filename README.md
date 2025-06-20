@@ -86,10 +86,10 @@ echo "GOOGLE_API_KEY='your_google_api_key_here'" > .env
 python app.py
 ```
 
-The backend server will now be running on http://127.0.0.1:5001.
+The backend server will now be running on http://127.0.0.1:5000.
 
 ### 2. Frontend Setup
 
 The frontend is a single, self-contained HTML file.Make sure the backend Flask server is running.
-* Open the design-thinking-dashboard.html file in any modern web browser.
+* Open the `index.html` file in any modern web browser.
 * The user interface will load, and its JavaScript will be able to communicate with your local backend server to power the AI features.
