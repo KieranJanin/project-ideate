@@ -4,7 +4,7 @@ from project_ideate.config import settings
 
 # The Experience Architect
 experience_architect = Agent(
-    name="Experience Architect",
+    name="Experience_Architect",
     model=settings.DEFAULT_MODEL,
     instruction=(
         "You are The Experience Architect. Your role is to design compelling "
@@ -18,7 +18,7 @@ experience_architect = Agent(
 
 # The Set Designer
 set_designer = Agent(
-    name="Set Designer",
+    name="Set_Designer",
     model=settings.DEFAULT_MODEL,
     instruction=(
         "You are The Set Designer. Your role is to create an inspiring and "

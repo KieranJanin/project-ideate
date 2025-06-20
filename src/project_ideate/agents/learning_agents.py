@@ -1,5 +1,5 @@
 # src/design_thinking_sim/agents/learning_agents.py
-from google_adk.agents import Agent
+from google.adk.agents import Agent
 from project_ideate.tools.web_research import search_web
 from project_ideate.config import settings
 
@@ -18,7 +18,7 @@ anthropologist = Agent(
 
 # The Cross-Pollinator
 cross_pollinator = Agent(
-    name="Cross-Pollinator",
+    name="Cross_Pollinator",
     model=settings.DEFAULT_MODEL,
     instruction=(
         "You are The Cross-Pollinator. Your role is to find inspiration and "
