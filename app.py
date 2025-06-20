@@ -9,7 +9,11 @@ from src.project_ideate.config import settings
 
 # --- Configuration ---
 # The 'template_folder' argument tells Flask where to find the HTML files.
-app = Flask(__name__, template_folder='src/project_ideate/templates')
+app = Flask(
+    __name__, 
+    template_folder='src/project_ideate/templates',
+    static_folder='src/project_ideate/templates/src'
+    )
 CORS(app)
 
 # Configure the Gemini API key from our settings file

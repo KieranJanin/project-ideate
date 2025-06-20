@@ -75,7 +75,7 @@ python -m venv ideate-venv
 source ideate-venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 
 # 3. Install Python dependencies
-pip install Flask flask-cors google-generativeai python-dotenv
+pip install -r requirements.txt
 
 # 4. Set up your environment variables
 # Create a new file named .env in the root directory
