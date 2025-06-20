@@ -21,6 +21,7 @@ if settings.GEMINI_API_KEY:
     genai.configure(api_key=settings.GEMINI_API_KEY)
 
 # --- Helper Function ---
+
 def call_gemini_api(prompt):
     """Calls the Gemini API with a given prompt and returns the text response."""
     if not settings.google_api_key:
@@ -32,6 +33,7 @@ def call_gemini_api(prompt):
     except Exception as e:
         print(f"🔴 Error calling Gemini API: {e}")
         return f"An error occurred while contacting the AI model: {e}"
+
 
 # --- API Endpoints ---
 
@@ -58,7 +60,6 @@ def index():
     """
     return render_template('index.html')
 
-
 @app.route('/api/generate-challenge', methods=['POST'])
 def generate_challenge():
     """
@@ -80,7 +81,6 @@ def generate_challenge():
     generated_text = call_gemini_api(prompt)
     
     return jsonify({"challenge": generated_text})
-
 
 @app.route('/api/run-simulation', methods=['POST'])
 def run_simulation():
@@ -118,4 +118,3 @@ def run_simulation():
 # --- Main Execution ---
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
