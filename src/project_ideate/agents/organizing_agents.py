@@ -1,4 +1,4 @@
-from google_adk.agents import Agent
+from google.adk.agents import Agent
 from project_ideate.tools.web_research import search_web
 from project_ideate.config import settings
 
