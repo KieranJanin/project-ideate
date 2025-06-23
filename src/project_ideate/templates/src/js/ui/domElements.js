@@ -16,6 +16,7 @@ export const dom = {
     startBtn: document.getElementById('start-btn'),
     pauseBtn: document.getElementById('pause-btn'),
     resetBtn: document.getElementById('reset-btn'),
+    missionControlPhase: document.getElementById('mission-control-phase'),
     statusEl: document.getElementById('sim-status'),
     feedEl: document.getElementById('live-feed'),
     speedSlider: document.getElementById('speed-slider'),

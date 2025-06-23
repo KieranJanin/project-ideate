@@ -46,7 +46,41 @@ export function renderAgents() {
 }
 
 export function addMessageToFeed(agentId, content, type = 'msg', isAI = false) {
-    // ... function content from original file
+    const agentData = agentId ? agents.find(a => a.id === agentId) : {};
+    const div = document.createElement('div');
+    let messageContent = '';
+    let bgColor = 'bg-gray-800';
+    
+    switch(type) {
+        case 'thought':
+            messageContent = `<p class="italic text-gray-400">🧠 ${content}</p>`;
+            bgColor = 'bg-transparent';
+            break;
+        case 'tool':
+            messageContent = `<p class="font-mono text-sm text-yellow-300 bg-black/30 p-2 rounded-md">🔧 ${content}</p>`;
+            bgColor = 'bg-transparent';
+            break;
+        case 'phase_marker':
+            div.className = 'phase-marker';
+            div.innerHTML = `--- ${content} ---`;
+            dom.feedEl.appendChild(div);
+            dom.feedEl.scrollTop = dom.feedEl.scrollHeight;
+            return;
+        default:
+            messageContent = `<p>${content.replace(/\n/g, '<br>')}</p>`;
+            break;
+    }
+
+    div.className = `p-4 rounded-lg flex items-start space-x-4 ${bgColor}`;
+    div.innerHTML = `
+        <span class="text-2xl">${agentData?.avatar || '🤖'}</span>
+        <div class="flex-1">
+            <p class="font-semibold text-white">${agentData?.name || 'System'} ${isAI ? '✨' : ''}</p>
+            <div class="text-gray-300 text-sm">${messageContent}</div>
+        </div>
+    `;
+    dom.feedEl.appendChild(div);
+    dom.feedEl.scrollTop = dom.feedEl.scrollHeight;
 }
 
 // --- EMPATHIZE PHASE RENDERERS ---

@@ -16,7 +16,7 @@ let currentPhase = -1;
 
 // --- Main Simulation Logic ---
 
-async function processScriptStep() {
+export async function processScriptStep() {
     if (isPaused || scriptIndex >= simulationFlow.length) {
         if (scriptIndex >= simulationFlow.length) stopSimulation();
         return;
@@ -37,6 +37,7 @@ async function processScriptStep() {
     switch (step.type) {
         case 'phase_marker':
             renderers.addMessageToFeed(null, `Entering ${phases[step.phase]} Phase`, 'phase_marker');
+            updateMissionControlPhase(step.phase);
             break;
         case 'phase':
             currentPhase = step.phase;
@@ -63,7 +64,7 @@ async function processScriptStep() {
     scriptIndex++;
 }
 
-async function handleGeminiCall(step, agentName, challenge) {
+export async function handleGeminiCall(step, agentName, challenge) {
     renderers.addMessageToFeed(step.agent, 'Thinking...', 'thought');
     const data = getCollectedData();
     let prompt = '';
@@ -221,4 +222,9 @@ export function resetSimulation(keepChallenge = false) {
     dom.pauseBtn.disabled = true;
     dom.statusEl.textContent = 'Idle';
     switchView('mission-control-view');
+}
+
+// --- UI Updates ---
+export function updateMissionControlPhase(phaseIndex) {
+    dom.missionControlPhase.textContent = phases[phaseIndex];
 }
