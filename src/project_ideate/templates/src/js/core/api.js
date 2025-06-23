@@ -147,7 +147,7 @@ export async function callGemini(prompt, isJson = false) {
  * Assumes `dom` is imported and contains a `loadingSpinner` element.
  * @param {boolean} isLoading - Whether the API call is in progress.
  */
-function isCallingAPI(isLoading) {
+export function isCallingAPI(isLoading) {
     if (dom && dom.loadingSpinner) {
         if (isLoading) {
             dom.loadingSpinner.classList.remove('hidden');

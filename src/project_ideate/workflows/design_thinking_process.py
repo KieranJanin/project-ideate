@@ -1,8 +1,8 @@
 # src/design_thinking_sim/workflows/design_thinking_process.py
-from google_adk.agents import SequentialAgent
-from design_thinking_sim.agents.learning_agents import anthropologist
-from design_thinking_sim.agents.organizing_agents import director, hurdler
-# ... import other agents
+from google.adk.agents import SequentialAgent
+from project_ideate.agents.learning_agents import anthropologist, experience_architect, storyteller
+from project_ideate.agents.building_agents import 
+from project_ideate.agents.organizing_agents import director, hurdler
 
 # This SequentialAgent IS the entire design thinking process
 design_thinking_crew = SequentialAgent(

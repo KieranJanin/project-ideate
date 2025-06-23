@@ -1,0 +1,83 @@
+<mxfile host="65bd71144e">
+    <diagram id="mXjoCSaGoRZ4jrum1opX" name="Page-1">
+        <mxGraphModel dx="1019" dy="924" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="Frontend (JS/HTML/CSS)" style="shape=rectangle;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="200" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="Flask Backend (Python)" style="shape=rectangle;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="240" y="200" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="Multi-Agent System (Python)" style="shape=rectangle;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="440" y="200" width="150" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="Google ADK" style="shape=rectangle;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="455" y="300" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="Google Gemini API" style="shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="660" y="290" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="Tools" style="shape=rectangle;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="660" y="200" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="" style="endArrow=classic;html=1;exitTo=" parent="1" source="2" target="3" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="330" y="229" as="sourcePoint"/>
+                        <mxPoint x="380" y="179" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="9" value="API Requests" style="edgeLabel;html=1;align=center;verticalAlign=middle;" parent="8" visible="yes" connectable="0">
+                    <mxGeometry x="-0.1026" y="3" relative="1" as="geometry">
+                        <mxPoint x="12" y="-7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="10" value="" style="endArrow=classic;html=1;exitTo=" parent="1" source="3" target="4" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="580" y="229" as="sourcePoint"/>
+                        <mxPoint x="630" y="179" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="11" value="Orchestration" style="edgeLabel;html=1;align=center;verticalAlign=middle;" parent="10" visible="yes" connectable="0">
+                    <mxGeometry x="-0.1026" y="3" relative="1" as="geometry">
+                        <mxPoint x="12" y="-7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="12" value="" style="endArrow=classic;html=1;exitTo=" parent="1" source="4" target="5" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="510" y="260" as="sourcePoint"/>
+                        <mxPoint x="560" y="210" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="13" value="Utilizes" style="edgeLabel;html=1;align=center;verticalAlign=middle;" parent="12" visible="yes" connectable="0">
+                    <mxGeometry x="-0.1026" y="3" relative="1" as="geometry">
+                        <mxPoint x="12" y="-7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" value="" style="endArrow=classic;html=1;exitTo=" parent="1" source="4" target="7" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="740" y="220" as="sourcePoint"/>
+                        <mxPoint x="790" y="170" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="15" value="Uses Tools" style="edgeLabel;html=1;align=center;verticalAlign=middle;" parent="14" visible="yes" connectable="0">
+                    <mxGeometry x="-0.1026" y="3" relative="1" as="geometry">
+                        <mxPoint x="12" y="-7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="16" value="" style="endArrow=classic;html=1;exitTo=" parent="1" source="7" target="6" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="720" y="260" as="sourcePoint"/>
+                        <mxPoint x="770" y="210" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" value="Interacts with" style="edgeLabel;html=1;align=center;verticalAlign=middle;" parent="16" visible="yes" connectable="0">
+                    <mxGeometry x="-0.1026" y="3" relative="1" as="geometry">
+                        <mxPoint x="12" y="-7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

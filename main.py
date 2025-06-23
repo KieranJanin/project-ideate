@@ -1,7 +1,7 @@
 # src/main.py
-from design_thinking_sim.config import settings
-from design_thinking_sim.workflows.design_thinking_process import design_thinking_crew
-from design_thinking_sim.shared.models import DesignChallenge
+from project_ideate.config import settings
+from project_ideate.workflows.design_thinking_process import design_thinking_crew
+from project_ideate.shared.models import DesignChallenge
 
 def run_simulation():
     print("🚀 Starting Design Thinking Simulation...")
