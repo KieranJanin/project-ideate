@@ -57,7 +57,8 @@ The application is a single-page web interface designed as a "Mission Control" d
 ## Prerequisites
 
 * Git
-* Python 3.8+
+* Conda
+* Python 3.11+
 * An active Google API Key with the Gemini API enabled.
 
 ### 1. Backend Setup
@@ -69,20 +70,16 @@ The backend is the Flask server that runs the agent logic.
 git clone [https://github.com/KieranJanin/project-ideate.git](https://github.com/KieranJanin/project-ideate.git)
 cd project-ideate
 
-# 2. Create and activate a virtual environment
+# 2. Create and activate a virtual environment using conda
+conda env create -f environment.yml
+conda activate ideate-env
 
-python -m venv ideate-venv
-source ideate-venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-
-# 3. Install Python dependencies
-pip install -r requirements.txt
-
-# 4. Set up your environment variables
+# 3. Set up your environment variables
 # Create a new file named .env in the root directory
 # and add your Google API key to it:
 echo "GOOGLE_API_KEY='your_google_api_key_here'" > .env
 
-# 5. Run the Flask server
+# 4. Run the Flask server
 python app.py
 ```
 

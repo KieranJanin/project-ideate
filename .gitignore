@@ -40,5 +40,3 @@ pip-delete-this-directory.txt
 # Ignore specific directories and files from the project structure
 data/outputs/
 .env
-
-ideate-venv/

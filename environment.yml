@@ -1,0 +1,7 @@
+name: ideate-env
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.11
+  - pip
