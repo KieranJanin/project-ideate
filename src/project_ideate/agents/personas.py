@@ -1,45 +1,50 @@
 import adk
-import os
+import yaml
+from pathlib import Path
 from typing import Dict, Any
 
 # --- 1. Foundation: Configure the LLM for all agents ---
-# This setup is the "concrete mix design" for all our prefabricated agent elements.
-# It ensures consistency and provides the core intelligence.
-
-# Ensure your API key is set as an environment variable
-# os.environ["GEMINI_API_KEY"] = "YOUR_API_KEY"
-
-# We'll use a consistent model for all agents
 LLM_MODEL = adk.Model("gemini-1.5-flash")
 
+# --- 2. Persona Data Loading ---
+def load_all_personas() -> Dict[str, Dict[str, Any]]:
+    """Loads all agent persona definitions from the YAML file."""
+    yaml_path = Path(__file__).parent / "personas.yaml"
+    with open(yaml_path, 'r') as f:
+        return yaml.safe_load(f)
 
-# --- 2. The Generic Persona Class ---
-# This class inherits from adk.Agent and adds the specific properties
-# and methods from your mathematical model document.
+# Load the data once when the module is imported
+ALL_PERSONA_DATA = load_all_personas()
 
+
+# --- 3. The Generic Persona Class ---
 class Persona(adk.Agent):
     """
-    Represents a generic agent persona that extends adk.Agent.
+    A generic agent persona dynamically configured from loaded data.
     It directly implements the properties from the formal model:
     A_i = <S_i, A_i, pi_i, U_i, B_i>
     """
-    def __init__(self, name: str, icon: str, role: str, instructions: str, utility_weights: Dict[str, float]):
+    def __init__(self, name: str, role: str, backstory: str, goal: str, **kwargs):
         """
-        Initializes the Persona.
+        Initializes the Persona using data loaded from the YAML file.
 
         Args:
             name (str): The name of the persona (e.g., "Anthropologist").
-            icon (str): An emoji to visually represent the persona.
             role (str): A brief description of the persona's function.
-            instructions (str): The core instructions for the LLM, defining the agent's Policy (pi_i).
-            utility_weights (Dict[str, float]): The 'w_k' weights for the agent's utility function.
+            backstory (str): A detailed description of the agent's persona and expertise.
+            goal (str): The specific objective this agent is trying to achieve.
         """
-        # Initialize the parent adk.Agent class
-        super().__init__(name=f"{name} {icon}", model=LLM_MODEL, instructions=instructions)
+        # The 'instructions' for the adk.Agent are a combination of the persona's
+        # backstory and their specific goal for the task.
+        instructions = f"{backstory}
+
+Your current goal is: {goal}"
         
-        self.icon = icon
+        super().__init__(name=name, model=LLM_MODEL, instructions=instructions)
+        
         self.role = role
-        self.utility_weights = utility_weights
+        # You could add other attributes like utility_weights here if they were in the YAML
+        # self.utility_weights = kwargs.get("utility_weights", {})
 
         # S_i: The State Space of the agent.
         self.state: Dict[str, Any] = {
@@ -51,166 +56,61 @@ class Persona(adk.Agent):
         # B_i: The Belief State about other agents.
         self.beliefs: Dict[str, Dict[str, Any]] = {}
 
-    def calculate_utility(self) -> float:
-        """
-        Calculates the agent's current utility based on its state and weights.
-        This method directly implements the Utility Function (U_i).
-        """
-        utility = 0.0
-        # This is a simplified calculation. A full implementation would use the
-        # quantification methods (direct, model-based, heuristic) from your document.
-        for key, weight in self.utility_weights.items():
-            utility += self.state.get(key, 0.0) * weight
-        
-        self.state["current_utility"] = utility
-        return utility
-
-    def update_belief(self, agent_name: str, new_information: Dict[str, Any]):
-        """Updates the agent's belief about another agent."""
-        if agent_name not in self.beliefs:
-            self.beliefs[agent_name] = {}
-        self.beliefs[agent_name].update(new_information)
-    
     def __repr__(self) -> str:
         """Provides a richer representation of the agent's status."""
-        return f"{self.name} | Role: {self.role} | Utility: {self.state['current_utility']:.2f}"
+        return f"{self.name} | Role: {self.role}"
 
 
-# --- 3. Specialized Persona Implementations ---
-# These classes inherit from our new Persona class and define the specific
-# instructions and utility weights for each role.
-
-# Learning Personas
-class Anthropologist(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Anthropologist", icon="🧑", role="User Researcher",
-            instructions="You are the Anthropologist. Your goal is to achieve the deepest possible understanding of the user. Observe the given situation, report facts without bias, and identify the underlying human needs and emotions.",
-            utility_weights={"actionable_insights": 1.5, "user_centricity_score": 1.2, "research_time": -0.5}
-        )
-
-class Experimenter(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Experimenter", icon="🧪", role="Hypothesis Tester",
-            instructions="You are the Experimenter. Your goal is to validate or invalidate hypotheses through rigorous testing. Propose clear, simple experiments to test assumptions and generate data-driven learnings.",
-            utility_weights={"validated_learnings": 2.0, "cost_of_experiment": -1.0}
-        )
-
-class CrossPollinator(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Cross-Pollinator", icon="🐝", role="Creative Synthesizer",
-            instructions="You are the Cross-Pollinator. Your goal is to introduce novel, unexpected ideas by drawing analogies from disparate fields. Connect concepts from different industries to spark innovation.",
-            utility_weights={"novelty_of_ideas": 1.8, "diversity_of_sources": 1.2}
-        )
-
-# Organizing Personas
-class Director(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Director", icon="🎬", role="Project Coordinator",
-            instructions="You are the Director. Your goal is the successful completion of the project. Your role is to provide clear direction, delegate tasks, and synthesize information to move the team forward.",
-            utility_weights={"Global_Project_Score": 2.0, "time_to_completion": -0.8, "resource_cost": -1.0}
-        )
-
-class Collaborator(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Collaborator", icon="🤝", role="Team Facilitator",
-            instructions="You are the Collaborator. Your goal is to ensure smooth teamwork and high participation. You facilitate discussions, help build consensus, and ensure all voices are heard.",
-            utility_weights={"team_alignment_score": 1.7, "participation_rate": 1.0, "unresolved_conflicts": -2.0}
-        )
-
-class Hurdler(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Hurdler", icon="🚧", role="Problem Solver",
-            instructions="You are the Hurdler. Your goal is to make concepts viable by proactively solving problems. Analyze concepts for feasibility, identify obstacles, and propose concrete solutions.",
-            utility_weights={"feasibility_score": 1.5, "solutions_generated": 1.5, "unmitigated_risks": -1.8}
-        )
-
-# Building Personas
-class ExperienceArchitect(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Experience Architect", icon="🏗️", role="User Journey Designer",
-            instructions="You are the Experience Architect. Your goal is to design a seamless and intuitive user journey. Based on insights, create a logical and coherent user flow that feels effortless.",
-            utility_weights={"user_flow_coherence": 1.8, "ease_of_use_score": 1.5}
-        )
-
-class SetDesigner(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Set Designer", icon="🖼️", role="Environment Designer",
-            instructions="You are the Set Designer. Your goal is to create the optimal physical or digital environment for the user experience. Ensure the solution fits perfectly into the user's context.",
-            utility_weights={"environmental_alignment": 1.6, "contextual_relevance": 1.4}
-        )
-
-class Caregiver(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Caregiver", icon="♥️", role="Customer Advocate",
-            instructions="You are the Caregiver. Your goal is to anticipate and support customer needs throughout their experience. You focus on service design, empathy, and long-term customer satisfaction.",
-            utility_weights={"customer_satisfaction_score": 1.9, "service_quality": 1.3}
-        )
-
-class Storyteller(Persona):
-    def __init__(self):
-        super().__init__(
-            name="Storyteller", icon="📜", role="Narrative Crafter",
-            instructions="You are the Storyteller. Your goal is to create a compelling and emotionally resonant narrative. You craft a powerful message that communicates the 'why' behind the design.",
-            utility_weights={"narrative_clarity": 1.7, "emotional_impact_score": 1.5}
-        )
-
-
-# --- 4. Simulation: The Structure in Action ---
-
-def run_design_thinking_simulation():
+# --- 4. Persona Factory ---
+def create_persona(agent_id: str) -> Persona:
     """
-    Simulates a design thinking session using the specialized Persona classes.
-    """
-    print("--- 🎬 SIMULATION START ---")
+    Factory function to create a specific Persona instance by its ID.
 
-    # 1. Instantiate the agents for this session
-    director = Director()
-    anthropologist = Anthropologist()
-    storyteller = Storyteller()
-    architect = ExperienceArchitect()
+    Args:
+        agent_id (str): The key of the agent in the personas.yaml file (e.g., "anthropologist").
 
-    design_challenge = "An unintuitive coffee machine"
-
-    with adk.session() as s:
-        # --- Empathize Phase ---
-        print("\n--- PHASE: EMPATHIZE ---")
-        director_prompt = f"Team, our challenge is: '{design_challenge}'. Anthropologist, please provide your observations."
-        print(f"\n{director.name}: {director_prompt}")
-        anthropologist_report = anthropologist.tell(director_prompt)
-        print(f"\n{anthropologist.name}: {anthropologist_report}")
+    Returns:
+        An instance of the Persona class.
         
-        # --- Define Phase ---
-        print("\n--- PHASE: DEFINE ---")
-        director_prompt_2 = f"Thank you. Storyteller, based on this report, please frame the core problem as a human-centered narrative."
-        print(f"\n{director.name}: {director_prompt_2}")
-        storyteller_narrative = storyteller.tell(director_prompt_2)
-        print(f"\n{storyteller.name}: {storyteller_narrative}")
+    Raises:
+        ValueError: if the agent_id is not found in the loaded data.
+    """
+    persona_data = ALL_PERSONA_DATA.get(agent_id)
+    if not persona_data:
+        raise ValueError(f"No persona found for agent ID '{agent_id}'. Check personas.yaml.")
 
-        # --- Ideate/Build Phase ---
-        print("\n--- PHASE: BUILD ---")
-        director_prompt_3 = f"A powerful narrative. Now, Experience Architect, based on that story, design a high-level user journey for a new, intuitive machine."
-        print(f"\n{director.name}: {director_prompt_3}")
-        architect_design = architect.tell(director_prompt_3)
-        print(f"\n{architect.name}: {architect_design}")
+    # The name is the agent_id capitalized, which is a reasonable convention.
+    # The YAML file contains 'role', 'backstory', and 'goal'.
+    return Persona(
+        name=agent_id.replace('_', ' ').title(),
+        **persona_data
+    )
 
-
-    print("\n--- 🎬 SIMULATION END ---")
-
-
+# --- Example of how to use it ---
 if __name__ == '__main__':
-    # This block will only run when the script is executed directly.
-    # To run this, you would need to have the 'adk' library installed
-    # and your Google AI API key configured.
-    print("This script provides the scaffolding for all 10 ADK-based personas.")
-    print("The `run_design_thinking_simulation` function shows how they would interact.")
-    # To make this runnable, you would uncomment the following line:
-    # run_design_thinking_simulation()
+    print("This script provides the scaffolding for all ADK-based personas.")
+    print("It dynamically loads agent definitions from 'personas.yaml'.")
+    print("
+--- Available Personas ---")
+    for agent_id in ALL_PERSONA_DATA.keys():
+        print(f"- {agent_id}")
+    
+    print("
+--- Testing Persona Creation ---")
+    try:
+        # Create an instance of the Anthropologist
+        anthropologist = create_persona("anthropologist")
+        print(f"Successfully created: {anthropologist}")
+        print("
+Instructions for Anthropologist:")
+        print(anthropologist.instructions)
+
+        # Create an instance of the Storyteller
+        storyteller = create_persona("storyteller")
+        print(f"
+Successfully created: {storyteller}")
+
+
+    except (ValueError, FileNotFoundError) as e:
+        print(f"
+🔴 Error: {e}")

@@ -4,8 +4,8 @@ from flask_cors import CORS
 import google.generativeai as genai
 
 # --- Import from our structured repository ---
-# This assumes you are running `python app.py` from the root directory.
-from src.project_ideate.config import settings
+# This now uses a standard package import, thanks to our `pyproject.toml` setup.
+from project_ideate.config import settings
 
 # --- Configuration ---
 # The 'template_folder' argument tells Flask where to find the HTML files.
@@ -75,7 +75,7 @@ def generate_challenge():
     prompt = (
         "You are a design thinking facilitator. Expand the following keyword into a rich, "
         "detailed, and inspiring design challenge for a creative team. Make it specific "
-        "and actionable. KEYWORD: \"{keyword}\""
+        "and actionable. KEYWORD: "{keyword}""
     ).format(keyword=keyword)
 
     generated_text = call_gemini_api(prompt)
@@ -102,7 +102,8 @@ def run_simulation():
     # Placeholder simulation logic remains the same.
     # A real implementation would now run the ADK workflow.
     insight = "Users struggle with unpredictable income."
-    ideas_text = "1. AI-powered 'Smart Savings' feature.\n2. A 'Goal Visualizer' gamified interface."
+    ideas_text = "1. AI-powered 'Smart Savings' feature.
+2. A 'Goal Visualizer' gamified interface."
     final_text = "Introducing 'Flow,' the financial co-pilot for freelancers..."
     
     return jsonify({
