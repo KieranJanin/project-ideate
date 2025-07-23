@@ -11,8 +11,8 @@ from src.project_ideate.config import settings
 # The 'template_folder' argument tells Flask where to find the HTML files.
 app = Flask(
     __name__, 
-    template_folder='src/project_ideate/templates',
-    static_folder='src/project_ideate/templates/src'
+    template_folder='src/templates',
+    static_folder='src/static'
     )
 CORS(app)
 

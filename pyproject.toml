@@ -2,7 +2,8 @@
 name = "project-ideate"
 version = "0.1.0"
 dependencies = [
+    "google-generativeai",
     "google-adk",
     "python-dotenv",
-    # Add other libraries like pydantic for data models
+    "pydantic",
 ]

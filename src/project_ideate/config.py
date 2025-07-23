@@ -6,6 +6,6 @@ load_dotenv()
 
 class Settings:
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-    DEFAULT_MODEL = "gemini-2.5-flash-preview-04-17"
+    DEFAULT_MODEL = "gemini-2.5-flash-lite"
 
 settings = Settings()
