@@ -180,6 +180,7 @@ export function renderProblemStatement(statement) {
 }
 export function renderRefinedHMWs(hmws) {
     dom.refinedHmwContainer.classList.remove('hidden');
+    dom.refinedHmwContainer.style.gridColumn = "1 / -1"; // Span full width
     dom.refinedHmwContainer.innerHTML = `
         <div class="bg-green-900/30 border border-green-500 p-4 rounded-lg h-full">
              <h3 class="font-bold text-lg text-white mb-3">💡 How Might We... (Refined)</h3>

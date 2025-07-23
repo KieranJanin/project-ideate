@@ -130,7 +130,7 @@ export async function handleGeminiCall(step, agentName, challenge) {
         const keyMap = {
             generate_persona: 'persona',
             generate_quotes: 'quotes',
-            generate_hmw: 'hmw',
+            generate_hmw: 'hmw', 
             generate_pov: 'pov',
             generate_metrics: 'metrics',
             define_scope: 'scope',
@@ -145,7 +145,41 @@ export async function handleGeminiCall(step, agentName, challenge) {
             updateCollectedData(stateKey, response.statement ? response.statement : response);
         }
 
-        const renderer = renderers[`render${step.task.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('').replace('Generate', '')}`];
+        let renderer;
+        switch (step.task) {
+            case 'generate_hmw':
+                renderer = renderers['renderHMWs'];
+                break;
+            case 'generate_metrics':
+                renderer = renderers['renderSuccessMetrics'];
+                break;
+            case 'refine_hmw':
+                renderer = renderers['renderRefinedHMWs'];
+                break;
+            case 'generate_pov':
+                renderer = renderers['renderPOV'];
+                break;
+            case 'define_scope':
+                renderer = renderers['renderScope'];
+                break;
+            case 'generate_problem_statement':
+                renderer = renderers['renderProblemStatement'];
+                break;
+            case 'analogous_brainstorm':
+                renderer = renderers['renderAnalogousBrainstorm'];
+                break;
+            case 'evaluate_effort_impact':
+                renderer = renderers['renderEffortImpactMatrix'];
+                break;
+            case 'select_winning_concept':
+                renderer = renderers['renderWinningConcept'];
+                break;
+            default:
+                // Fallback for other tasks if they follow a consistent naming convention
+                renderer = renderers[`render${step.task.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('').replace('Generate', '').replace('Define', '').replace('Select', '').replace('Evaluate', '')}`];
+                break;
+        }
+
         if (renderer) {
             renderer(response.statement ? response.statement : response);
             renderers.addMessageToFeed(step.agent, `I've completed my task. Check the whiteboard.`, 'msg', true);
@@ -153,7 +187,7 @@ export async function handleGeminiCall(step, agentName, challenge) {
              renderers.addMessageToFeed(step.agent, response, 'msg', true);
         }
     } else {
-        renderers.addMessageToFeed(step.agent, 'I encountered a problem with my task and couldn\'t complete it.', 'msg', true);
+        renderers.addMessageToFeed(step.agent, "I encountered a problem with my task and couldn't complete it.", 'msg', true);
     }
 }
 

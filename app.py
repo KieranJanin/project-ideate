@@ -143,21 +143,41 @@ def gemini_proxy():
         response = model.generate_content(prompt, generation_config=generation_config)
 
         if is_json:
-            # Try to parse the text as JSON; handle cases where it's wrapped in markdown
             try:
                 # Remove markdown code block fences if present
-                text_content = response.text.strip()
+                text_content = response.text.strip() # Initial strip for leading/trailing whitespace/newlines
+
                 if text_content.startswith('```json') and text_content.endswith('```'):
-                    text_content = text_content[len('```json'):-len('```')].strip()
-                
+                    text_content = text_content[len('```json'):-len('```')].strip() # Strip again after removing fences
+
                 # Attempt to parse as JSON
                 import json
                 parsed_json = json.loads(text_content)
                 return jsonify(parsed_json)
             except json.JSONDecodeError as e:
-                print(f"🔴 JSON Decoding Error from Gemini: {e}")
-                print(f"Received text: {response.text}")
-                return jsonify({"error": "Failed to parse JSON response from AI model.", "raw_response": response.text}), 500
+                # If initial parse fails, try more aggressive cleanup
+                print(f"🔴 Initial JSON Decoding Error, attempting cleanup...")
+                
+                # Try to find the last occurrence of ']' or '}' and trim everything after it
+                # This assumes a single, valid JSON object/array is present.
+                last_brace_index = max(text_content.rfind('}'), text_content.rfind(']'))
+                if last_brace_index != -1:
+                    # Keep only up to and including the last brace, then strip whitespace
+                    cleaned_text_content = text_content[:last_brace_index + 1].strip()
+                    try:
+                        parsed_json = json.loads(cleaned_text_content)
+                        print("✅ Successfully parsed after aggressive trimming and stripping.")
+                        return jsonify(parsed_json)
+                    except json.JSONDecodeError as inner_e:
+                        print(f"🔴 JSON Decoding Error even after aggressive cleanup: {inner_e}")
+                        print(f"Original received text: {response.text}")
+                        print(f"Cleaned text attempted: {cleaned_text_content}")
+                        return jsonify({"error": "Failed to parse JSON response from AI model.", "raw_response": response.text}), 500
+                else:
+                    # If no ']' or '}' found, it's severely malformed
+                    print(f"🔴 JSON Decoding Error: No valid closing brace found. {e}")
+                    print(f"Received text: {response.text}")
+                    return jsonify({"error": "Failed to parse JSON response from AI model.", "raw_response": response.text}), 500
         else:
             return jsonify({"text": response.text})
     except Exception as e:

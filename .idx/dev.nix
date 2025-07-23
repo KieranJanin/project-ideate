@@ -11,6 +11,9 @@
     pkgs.python311Packages.uvicorn
     pkgs.python311Packages.python-dotenv
     pkgs.nodejs_20
+    # Add Conda and Mamba here
+    pkgs.conda
+    pkgs.mamba
   ];
   # Sets environment variables in the workspace
   env = {

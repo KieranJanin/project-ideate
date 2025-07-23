@@ -45,14 +45,20 @@ export async function callGemini(prompt, isJson = false) {
         }
 
         const result = await response.json();
-        
+
         // The backend should return the raw text or parsed JSON directly
         if (isJson) {
             // Backend should return already parsed JSON, so no need for regex match here.
             return result;
         }
-        return result.text; // Assuming backend returns { text: "..." } for non-JSON
-
+        // The backend is returning a JSON array of strings.
+        // Extract the first string from the array.
+        if (Array.isArray(result) && typeof result[0] === 'string') {
+            return result[0];
+        }
+        // Fallback in case the backend response format changes unexpectedly
+        console.warn("Unexpected response format from backend:", result);
+        return result; // Return the raw result for further inspection if needed
     } catch (error) {
         console.error("Backend proxy call failed:", error);
         return isJson ? null : `Error during API call: ${error.message}`;
