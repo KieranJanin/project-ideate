@@ -24,9 +24,9 @@ anthropologist:
     strength lies in empathetic listening and uncovering the 'aha!' moments that
     lead to truly relevant solutions.
   tools:
-    - observation_data_fetcher
-    - sentiment_analysis_tool
-    - behavioral_pattern_recognizer
+    - anthropologist.observation_data_fetcher
+    - anthropologist.sentiment_analysis_tool
+    - anthropologist.behavioral_pattern_recognizer
   tasks:
     - id: "conduct_ethnographic_study"
       description: "Conduct an ethnographic study to gather raw observations about user behaviors and environments."
@@ -54,9 +54,9 @@ experimenter:
     to get your hands dirty building rough prototypes. Your motto is "fail fast,
     learn faster," constantly seeking feedback to validate or invalidate hypotheses.
   tools:
-    - rapid_prototyping_simulator
-    - ab_testing_data_analysis_tool
-    - feedback_collection_synthesis_tool
+    - experimenter.rapid_prototyping_simulator
+    - experimenter.ab_testing_data_analysis_tool
+    - experimenter.feedback_collection_synthesis_tool
   tasks:
     - id: "create_paper_prototype"
       description: "Create a simple paper prototype for a given concept."
@@ -94,9 +94,9 @@ cross_pollinator:
     ability to bridge disparate fields often leads to breakthrough ideas that
     wouldn't emerge from within the industry silo.
   tools:
-    - cross_industry_search_engine
-    - analogy_generator
-    - knowledge_graph_explorer
+    - cross_pollinator.cross_industry_search_engine
+    - cross_pollinator.analogy_generator
+    - cross_pollinator.knowledge_graph_explorer
   tasks:
     - id: "conduct_competitive_analysis"
       description: "Review existing solutions in the market relevant to the design challenge."
@@ -126,9 +126,9 @@ hurdler:
     complexities, finding creative workarounds, and clearing the path for the
     team to move forward. Your focus is on viability and implementability.
   tools:
-    - constraint_identifier_analyzer
-    - problem_solving_frameworks_advisor
-    - risk_assessment_mitigation_planner
+    - hurdler.constraint_identifier_analyzer
+    - hurdler.problem_solving_frameworks_advisor
+    - hurdler.risk_assessment_mitigation_planner
   tasks:
     - id: "generate_hmw_statements"
       description: "Generate 'How Might We' questions based on the core problem statement."
@@ -166,9 +166,9 @@ collaborator:
     emerge from collaborative synergy, and you actively work to create an atmosphere
     of trust, psychological safety, and shared purpose.
   tools:
-    - team_communication_coordination_integrator
-    - knowledge_sharing_platform_access
-    - conflict_resolution_facilitation_guide
+    - collaborator.team_communication_coordination_integrator
+    - collaborator.knowledge_sharing_platform_access
+    - collaborator.conflict_resolution_facilitation_guide
   tasks:
     - id: "facilitate_stakeholder_interviews"
       description: "Facilitate interviews with various stakeholders to gather diverse perspectives."
@@ -206,9 +206,9 @@ director:
     a well-defined objective. Your leadership inspires confidence and keeps the
     project focused, even amidst creative chaos.
   tools:
-    - team_performance_analytics
-    - motivational_content_generator
-    - strategic_alignment_checker
+    - director.team_performance_analytics
+    - director.motivational_content_generator
+    - director.strategic_alignment_checker
   tasks:
     - id: "prioritize_ideas_matrix"
       description: "Prioritize ideas using an Effort/Impact Matrix."
@@ -239,9 +239,9 @@ experience_architect:
     on the emotional resonance and practical usability of a solution. Your designs
     are not just functional; they are a joy to interact with.
   tools:
-    - user_journey_mapping_tool
-    - sensory_design_prototyper
-    - empathy_builder_tool
+    - experience_architect.user_journey_mapping_tool
+    - experience_architect.sensory_design_prototyper
+    - experience_architect.empathy_builder_tool
   tasks:
     - id: "map_user_journey_as_is"
       description: "Create an 'As-Is' user journey map for the current experience."
@@ -287,9 +287,9 @@ set_designer:
     sensory details to create an immersive and appropriate backdrop for the user's
     experience. You make sure the solution feels natural and integrated.
   tools:
-    - space_planning_visualization_tool
-    - resource_allocation_manager
-    - culture_environment_assessment
+    - set_designer.space_planning_visualization_tool
+    - set_designer.resource_allocation_manager
+    - set_designer.culture_environment_assessment
   tasks:
     - id: "create_system_map"
       description: "Create a system map visualizing all actors, systems, and environmental factors."
@@ -310,9 +310,9 @@ caregiver:
     support systems, and building trust. Your work ensures that the innovation
     continues to delight and serve its audience over time.
   tools:
-    - needs_anticipation_prediction
-    - personalized_support_content_generator
-    - feedback_loop_integrator
+    - caregiver.needs_anticipation_prediction
+    - caregiver.personalized_support_content_generator
+    - caregiver.feedback_loop_integrator
   tasks:
     - id: "define_role_playing_scenario"
       description: "Define a role-playing or service scenario to test human-to-human touchpoints."
@@ -335,9 +335,9 @@ storyteller:
     and you use this power to convey the "why" behind the innovation, making it
     relatable and inspiring, rallying support and excitement.
   tools:
-    - narrative_structure_generator
-    - audience_empathy_mapper
-    - visual_storytelling_asset_creator
+    - storyteller.narrative_structure_generator
+    - storyteller.audience_empathy_mapper
+    - storyteller.visual_storytelling_asset_creator
   tasks:
     - id: "create_user_persona"
       description: "Create a detailed user persona based on research insights."

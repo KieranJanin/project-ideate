@@ -14,7 +14,7 @@
     <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
 
     <!-- Application Stylesheet -->
-    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
 </head>
 <body class="bg-gray-900 text-gray-200 flex flex-col lg:flex-row h-screen overflow-hidden">
 
@@ -71,6 +71,7 @@
                         <p class="text-sm">Status: <span id="sim-status" class="font-semibold text-yellow-400">Idle</span></p>
                         <div id="loading-spinner" class="loader hidden"></div>
                     </div>
+                    <p class="text-sm">Current Phase: <span id="mission-control-phase" class="font-semibold text-purple-400">Mission Control</span></p>
                     <div class="grid grid-cols-3 gap-2">
                         <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"></button>
                         <button id="pause-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition" disabled></button>
@@ -182,6 +183,6 @@
     </div>
     
     <!-- Main Application Script -->
-    <script type="module" src="src/js/main.js"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

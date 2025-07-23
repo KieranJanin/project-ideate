@@ -1,11 +1,19 @@
 import os
+import sys
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import google.generativeai as genai
 
+# --- Path setup for package import ---
+# This ensures that 'project_ideate' can be imported when running app.py directly.
+# It adds the 'src' directory to the Python path.
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_dir, os.pardir))
+sys.path.insert(0, os.path.join(project_root, 'src'))
+
 # --- Import from our structured repository ---
 # This now uses a standard package import, thanks to our `pyproject.toml` setup.
-from project_ideate.config import settings
+from src.project_ideate.config import settings
 
 # --- Configuration ---
 # The 'template_folder' argument tells Flask where to find the HTML files.
@@ -27,12 +35,12 @@ def call_gemini_api(prompt):
     if not settings.GEMINI_API_KEY:
         return "Error: GEMINI_API_KEY is not configured on the backend."
     try:
-        model = genai.GenerativeModel(settings.default_model)
+        model = genai.GenerativeModel(settings.DEFAULT_MODEL)
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
         print(f"🔴 Error calling Gemini API: {e}")
-        return f"An error occurred while contacting the AI model: {e}"
+        return f"An error occurred while contacting the AI model: {str(e)}"
 
 
 # --- API Endpoints ---
@@ -70,9 +78,9 @@ def generate_challenge():
         return jsonify({"error": "Keyword is required."}), 400
 
     prompt = (
-        "You are a design thinking facilitator. Expand the following keyword into a rich, "
-        "detailed, and inspiring design challenge for a creative team. Make it specific "
-        "and actionable. KEYWORD: "{keyword}""
+        f"""You are a design thinking facilitator. Expand the following keyword into a rich, 
+        detailed, and inspiring design challenge for a creative team. Make it specific 
+        and actionable. KEYWORD: '{keyword}'"""
     ).format(keyword=keyword)
 
     generated_text = call_gemini_api(prompt)
@@ -99,8 +107,8 @@ def run_simulation():
     # Placeholder simulation logic remains the same.
     # A real implementation would now run the ADK workflow.
     insight = "Users struggle with unpredictable income."
-    ideas_text = "1. AI-powered 'Smart Savings' feature.
-2. A 'Goal Visualizer' gamified interface."
+    ideas_text = """1. AI-powered 'Smart Savings' feature.
+2. A 'Goal Visualizer' gamified interface."""
     final_text = "Introducing 'Flow,' the financial co-pilot for freelancers..."
     
     return jsonify({
@@ -129,7 +137,7 @@ def gemini_proxy():
         return jsonify({"error": "GEMINI_API_KEY is not configured on the backend."}), 500
 
     try:
-        model = genai.GenerativeModel(settings.default_model)
+        model = genai.GenerativeModel(settings.DEFAULT_MODEL)
         generation_config = {"response_mime_type": "application/json"} if is_json else {}
         
         response = model.generate_content(prompt, generation_config=generation_config)

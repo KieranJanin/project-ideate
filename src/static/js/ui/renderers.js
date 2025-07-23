@@ -53,21 +53,28 @@ export function addMessageToFeed(agentId, content, type = 'msg', isAI = false) {
     
     switch(type) {
         case 'thought':
-            messageContent = `<p class="italic text-gray-400">🧠 ${content}</p>`;
+            // Ensure content is string for thoughts
+            let thoughtContent = typeof content === 'object' ? JSON.stringify(content, null, 2) : String(content);
+            messageContent = `<p class="italic text-gray-400">🧠 ${thoughtContent}</p>`;
             bgColor = 'bg-transparent';
             break;
         case 'tool':
-            messageContent = `<p class="font-mono text-sm text-yellow-300 bg-black/30 p-2 rounded-md">🔧 ${content}</p>`;
+            // Ensure content is string for tools
+            let toolContent = typeof content === 'object' ? JSON.stringify(content, null, 2) : String(content);
+            messageContent = `<p class="font-mono text-sm text-yellow-300 bg-black/30 p-2 rounded-md">🔧 ${toolContent}</p>`;
             bgColor = 'bg-transparent';
             break;
         case 'phase_marker':
             div.className = 'phase-marker';
-            div.innerHTML = `--- ${content} ---`;
+            div.innerHTML = `--- ${content} ---`; // Content here is always expected to be string
             dom.feedEl.appendChild(div);
             dom.feedEl.scrollTop = dom.feedEl.scrollHeight;
             return;
         default:
-            messageContent = `<p>${content.replace(/\n/g, '<br>')}</p>`;
+            // Handle general messages, convert objects to string for display
+            let displayContent = typeof content === 'object' ? JSON.stringify(content, null, 2) : String(content);
+            messageContent = `<p>${displayContent.replace(//
+                /g, '<br>')}</p>`;
             break;
     }
 
@@ -245,12 +252,14 @@ export function renderWinningConcept(concept) {
 // --- PROTOTYPE & FINALIZE RENDERERS ---
 export function renderAnalyzeObstacles(analysisText) {
     dom.hurdlerCard.classList.remove('hidden');
-    dom.hurdlerAnalysisText.innerHTML = analysisText.replace(/\n/g, '<br>');
+    dom.hurdlerAnalysisText.innerHTML = analysisText.replace(/
+/g, '<br>');
 }
 export function renderFinalize(finalText) {
     dom.finalConceptCard.classList.remove('hidden');
     dom.finalConceptCard.style.gridColumn = "1 / -1";
-    dom.finalConceptContent.innerHTML = finalText.replace(/\n/g, '<br>');
+    dom.finalConceptContent.innerHTML = finalText.replace(/
+/g, '<br>');
 }
 
 
