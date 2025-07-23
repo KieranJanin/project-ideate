@@ -1,16 +1,22 @@
-# src/design_thinking_sim/shared/models.py
+# src/project_ideate/shared/models.py
 from pydantic import BaseModel
-from typing import List
+import json
 
-class UserInsight(BaseModel):
-    observation: str
-    implication: str
-    source: str
+# --- Core Input Models ---
+# These models define the structure of data that typically serves as input
+# to the simulation or core application processes.
 
-class DesignConcept(BaseModel):
-    title: str
-    description: str
-    feasibility_score: float = 0.0
-    novelty_score: float = 0.0
+class DesignChallenge(BaseModel):
+    prompt: str
 
-# ... other models like DesignChallenge, FinalReport etc.
+    @classmethod
+    def from_json(cls, file_path: str):
+        """
+        Loads a DesignChallenge instance from a JSON file.
+        """
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        return cls(**data)
+
+
+# --- Other potential core models (e.g., User, ProjectConfig) could go here ---

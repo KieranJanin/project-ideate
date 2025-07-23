@@ -24,8 +24,8 @@ if settings.GEMINI_API_KEY:
 
 def call_gemini_api(prompt):
     """Calls the Gemini API with a given prompt and returns the text response."""
-    if not settings.google_api_key:
-        return "Error: GOOGLE_API_KEY is not configured on the backend."
+    if not settings.GEMINI_API_KEY:
+        return "Error: GEMINI_API_KEY is not configured on the backend."
     try:
         model = genai.GenerativeModel(settings.default_model)
         response = model.generate_content(prompt)
@@ -41,15 +41,12 @@ def call_gemini_api(prompt):
 def get_gemini_api_key():
     """
     Endpoint to serve the Gemini API key from environment variables.
+    This endpoint is now deprecated as the frontend should no longer directly access the key.
+    It is kept for backward compatibility but should ideally be removed.
     """
-    api_key = settings.GEMINI_API_KEY
-
-    if not api_key:
-        # Return an error if the key is not found (good for debugging)
-        return jsonify({"error": "API key not configured in environment variables"}), 500
-
-    # Return the key (securely as JSON)
-    return jsonify({"apiKey": api_key})
+    # In a fully secure setup, this endpoint would return a non-sensitive token or be removed.
+    # For now, we return a dummy message or a very limited token.
+    return jsonify({"message": "API key is handled securely on the backend."})
 
 @app.route('/')
 def index():
@@ -114,6 +111,50 @@ def run_simulation():
             {"type": "final_concept", "agent": "storyteller", "content": final_text},
         ]
     })
+
+@app.route('/api/gemini-proxy', methods=['POST'])
+def gemini_proxy():
+    """
+    Proxies requests from the frontend to the Google Gemini API securely.
+    The frontend sends the prompt, and the backend makes the actual API call.
+    """
+    data = request.get_json()
+    prompt = data.get('prompt')
+    is_json = data.get('is_json', False)
+
+    if not prompt:
+        return jsonify({"error": "Prompt is required."}), 400
+    
+    if not settings.GEMINI_API_KEY:
+        return jsonify({"error": "GEMINI_API_KEY is not configured on the backend."}), 500
+
+    try:
+        model = genai.GenerativeModel(settings.default_model)
+        generation_config = {"response_mime_type": "application/json"} if is_json else {}
+        
+        response = model.generate_content(prompt, generation_config=generation_config)
+
+        if is_json:
+            # Try to parse the text as JSON; handle cases where it's wrapped in markdown
+            try:
+                # Remove markdown code block fences if present
+                text_content = response.text.strip()
+                if text_content.startswith('```json') and text_content.endswith('```'):
+                    text_content = text_content[len('```json'):-len('```')].strip()
+                
+                # Attempt to parse as JSON
+                import json
+                parsed_json = json.loads(text_content)
+                return jsonify(parsed_json)
+            except json.JSONDecodeError as e:
+                print(f"🔴 JSON Decoding Error from Gemini: {e}")
+                print(f"Received text: {response.text}")
+                return jsonify({"error": "Failed to parse JSON response from AI model.", "raw_response": response.text}), 500
+        else:
+            return jsonify({"text": response.text})
+    except Exception as e:
+        print(f"🔴 Error in Gemini proxy: {e}")
+        return jsonify({"error": f"An error occurred while contacting the AI model: {str(e)}"}), 500
 
 
 # --- Main Execution ---

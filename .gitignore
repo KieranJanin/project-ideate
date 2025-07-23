@@ -1,42 +1,39 @@
-# Ignore bytecode files
+# Environments
+/ideate-env/
+/env/
+/venv/
+/.venv/
+/lib/
+/lib64/
+
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# Ignore virtual environments
-.venv/
-venv/
-env/
-
-# Ignore build artifacts
-build/
-dist/
+# Build artifacts
+/build/
+/dist/
 *.egg-info/
-.eggs/
 
-# Ignore editor specific files
-.vscode/
-*~
+# IDE and workspace files
+/.idx/
+/.vscode/
+*.code-workspace
 
-# Ignore OS specific files
-.DS_Store
-Thumbs.db
-
-# Ignore test and coverage files
-.coverage
-.pytest_cache/
-
-# Ignore logs and databases
-*.log
-*.sqlite3
-*.db
-
-# Ignore jupyter notebook checkpoints
-.ipynb_checkpoints
-
-# Ignore pip files
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Ignore specific directories and files from the project structure
-data/outputs/
+# Secrets - VERY IMPORTANT
 .env
+*.env
+
+# Generated outputs & logs
+/data/outputs/
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Testing artifacts
+.pytest_cache/
+.coverage
+/htmlcov/

@@ -1,14 +1,16 @@
-// src/project-ideate/templates/src/js/main.js
+// src/js/main.js
 import { initializeEventListeners } from './ui/eventHandlers.js';
 import { initializeAppUI } from './ui/renderers.js';
 import { resetSimulation } from './core/simulation.js';
-import { fetchApiKey } from './core/api.js'; // Import the new function
+// The fetchApiKey function is no longer needed on the frontend as the backend handles API keys securely.
+// import { fetchApiKey } from './core/api.js'; 
 
 /**
  * Initializes the entire application.
  */
-async function initializeApp() { // Made initializeApp async
-    await fetchApiKey(); // *** Fetch the key FIRST and wait for it ***
+async function initializeApp() {
+    // No longer need to fetch API key directly on the frontend.
+    // await fetchApiKey(); 
     initializeAppUI();
     initializeEventListeners();
     resetSimulation(); // Perform initial reset

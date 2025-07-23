@@ -8,7 +8,7 @@ export const agents = [
     { id: 'anthropologist', name: 'Anthropologist', role: 'Observes human behavior to find deep, unbiased user insights.', avatar: '🌍', category: 'Learning' },
     { id: 'experimenter', name: 'Experimenter', role: 'Tests assumptions and prototypes ideas to gather data.', avatar: '🧪', category: 'Learning' },
     { id: 'cross-pollinator', name: 'Cross-Pollinator', role: 'Draws connections between unrelated fields to spark new ideas.', avatar: '🐝', category: 'Learning' },
-    { id: 'director', name: 'Director', role: 'Manages the overall process and team.', avatar: '👑', category: 'Organizing' },
+    { id: 'director', name: 'Director', role: 'Manages the overall process and team.', avatar: '🎬', category: 'Organizing' },
     { id: 'collaborator', name: 'Collaborator', role: 'Facilitates teamwork and ensures all voices are heard.', avatar: '🤝', category: 'Organizing' },
     { id: 'hurdler', name: 'Hurdler', role: 'Identifies obstacles and finds pragmatic solutions to overcome them.', avatar: '🚧', category: 'Organizing' },
     { id: 'experience-architect', name: 'Experience Architect', role: 'Designs compelling user journeys and interactions.', avatar: '🏗️', category: 'Building' },
