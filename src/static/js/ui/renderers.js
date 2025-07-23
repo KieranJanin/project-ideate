@@ -73,8 +73,7 @@ export function addMessageToFeed(agentId, content, type = 'msg', isAI = false) {
         default:
             // Handle general messages, convert objects to string for display
             let displayContent = typeof content === 'object' ? JSON.stringify(content, null, 2) : String(content);
-            messageContent = `<p>${displayContent.replace(//
-                /g, '<br>')}</p>`;
+            messageContent = `<p>${displayContent.replace(/\n/g, '<br>')}</p>`;
             break;
     }
 
@@ -252,14 +251,12 @@ export function renderWinningConcept(concept) {
 // --- PROTOTYPE & FINALIZE RENDERERS ---
 export function renderAnalyzeObstacles(analysisText) {
     dom.hurdlerCard.classList.remove('hidden');
-    dom.hurdlerAnalysisText.innerHTML = analysisText.replace(/
-/g, '<br>');
+    dom.hurdlerAnalysisText.innerHTML = analysisText.replace(/\n/g, '<br>');
 }
 export function renderFinalize(finalText) {
     dom.finalConceptCard.classList.remove('hidden');
     dom.finalConceptCard.style.gridColumn = "1 / -1";
-    dom.finalConceptContent.innerHTML = finalText.replace(/
-/g, '<br>');
+    dom.finalConceptContent.innerHTML = finalText.replace(/\n/g, '<br>');
 }
 
 
