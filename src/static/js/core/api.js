@@ -87,6 +87,12 @@ export async function callGemini(prompt, isJson = false) {
             // Backend should return already parsed JSON, so no need for regex match here.
             return result;
         }
+
+        // If we are expecting text, extract it from the response.
+        if (result && typeof result.text === 'string') {
+            return result.text;
+        }
+
         // The backend is returning a JSON array of strings.
         // Extract the first string from the array.
         if (Array.isArray(result) && typeof result[0] === 'string') {

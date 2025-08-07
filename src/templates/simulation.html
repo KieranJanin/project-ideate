@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project IDEATE - Agentic Workspace</title>
+    <title>Project IDEATE - Simulation</title>
     
     <!-- External Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -47,7 +47,7 @@
         </div>
     </nav>
 
-    <!-- Main Content Area (remains the same) -->
+    <!-- Main Content Area -->
     <div id="main-content" class="flex-grow flex flex-col overflow-hidden">
         <!-- Mission Control View -->
         <div id="mission-control-view" class="view active flex-grow h-full flex-col lg:flex-row">
@@ -59,10 +59,7 @@
                 <div class="space-y-2">
                     <div class="flex justify-between items-center">
                          <label for="design-challenge" class="text-sm font-medium text-gray-300">Design Challenge</label>
-                         <div>
-                            <button id="generate-challenge-btn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded-md flex items-center transition">Generate ✨</button>
-                            <button id="export-challenge-btn" class="text-xs bg-gray-600 hover:bg-gray-700 text-white font-semibold py-1 px-2 rounded-md flex items-center transition">Export</button>
-                         </div>
+                         <button id="generate-challenge-btn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded-md flex items-center transition">Generate ✨</button>
                     </div>
                     <textarea id="design-challenge" rows="4" class="w-full bg-gray-700 border-gray-600 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter a keyword and click Generate..."></textarea>
                 </div>
@@ -76,7 +73,7 @@
                         <button id="confirm-team-btn" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"><i class="fas fa-check mr-2"></i>Confirm Changes</button>
                     </div>
                 </div>
-                <div id="simulation-controls" class="bg-gray-700 p-4 rounded-lg space-y-4">
+                <div class="bg-gray-700 p-4 rounded-lg space-y-4">
                     <h3 class="text-md font-semibold text-white">Controls</h3>
                     <div class="flex items-center justify-between">
                         <p class="text-sm">Status: <span id="sim-status" class="font-semibold text-yellow-400">Idle</span></p>
@@ -84,9 +81,9 @@
                     </div>
                     <p class="text-sm">Current Phase: <span id="mission-control-phase" class="font-semibold text-purple-400">Mission Control</span></p>
                     <div class="grid grid-cols-3 gap-2">
-                        <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"></button>
-                        <button id="pause-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition" disabled></button>
-                        <button id="reset-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"></button>
+                        <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"><i class="fas fa-play"></i></button>
+                        <button id="pause-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition" disabled><i class="fas fa-pause"></i></button>
+                        <button id="reset-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-md flex items-center justify-center transition"><i class="fas fa-undo"></i></button>
                     </div>
                      <div>
                         <label for="speed-slider" class="text-sm font-medium text-gray-300">Simulation Speed</label>
@@ -96,14 +93,9 @@
             </div>
             <main id="mc-feed-pane" class="w-full lg:w-2/3 bg-gray-900 flex flex-col p-4 overflow-hidden">
                 <div id="live-feed" class="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-6"></div>
-                <div id="action-hub" class="p-4 bg-gray-800/50 rounded-lg">
-                    <h3 class="text-lg font-semibold text-center text-white mb-4">Choose an Agent to Proceed</h3>
-                    <div id="agent-action-buttons" class="flex justify-center gap-4">
-                        <!-- Agent buttons will be dynamically inserted here -->
-                    </div>
-                </div>
             </main>
         </div>
+        <!-- Other phase views remain the same -->
         <div id="empathize-view" class="view flex-grow h-full flex-row">
             <div class="flex-grow flex flex-col overflow-hidden">
                 <header class="p-4 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
@@ -200,6 +192,6 @@
     </div>
     
     <!-- Main Application Script -->
-    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/simulation_app.js') }}"></script>
 </body>
 </html>

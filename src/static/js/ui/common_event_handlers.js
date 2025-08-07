@@ -1,22 +1,33 @@
-// src/js/ui/eventHandlers.js
+// src/js/ui/common_event_handlers.js
 
 import { dom } from './domElements.js';
 import { switchView } from './viewManager.js';
-import { startSimulation, pauseSimulation, resetSimulation } from '../core/simulation.js';
 import { callGemini } from '../core/api.js';
 import { getCollectedData } from '../state/appState.js';
 import { agents } from '../config/agents.js';
 
-/**
- * Sets up all the event listeners for the application.
- */
-export function initializeEventListeners() {
+export function initializeCommonEventListeners() {
     // Hamburger Menu Toggle
-    if (dom.hamburgerMenu && dom.mcSetupPane) {
+    if (dom.hamburgerMenu && dom.mainNav) {
         dom.hamburgerMenu.addEventListener('click', () => {
-            dom.mcSetupPane.classList.toggle('hidden');
+            dom.mainNav.classList.toggle('lg:w-64');
+            dom.mainNav.classList.toggle('lg:w-20');
+            dom.mainNav.classList.toggle('nav-collapsed');
+            
+            dom.projectTitle.classList.toggle('hidden');
+            dom.collapsedTitle.classList.toggle('hidden');
         });
     }
+
+    // Title click to go to landing page
+    [dom.projectTitle, dom.collapsedTitle].forEach(titleEl => {
+        if (titleEl) {
+            titleEl.style.cursor = 'pointer';
+            titleEl.addEventListener('click', () => {
+                window.location.href = '/';
+            });
+        }
+    });
 
     dom.generateChallengeBtn.addEventListener('click', handleGenerateChallenge);
             
@@ -37,9 +48,7 @@ export function initializeEventListeners() {
         const link = e.target.closest('.nav-link');
         if (link) { e.preventDefault(); switchView(link.getAttribute('data-view')); }
     });
-    dom.startBtn.addEventListener('click', () => startSimulation());
-    dom.pauseBtn.addEventListener('click', pauseSimulation);
-    dom.resetBtn.addEventListener('click', () => resetSimulation(false));
+
     dom.confirmTeamBtn.addEventListener('click', () => {
         dom.agentEditPanel.classList.add('hidden');
         dom.editTeamBtn.classList.remove('hidden');
@@ -50,10 +59,7 @@ export function initializeEventListeners() {
     });
 }
 
-/**
- * Handles the "Generate" button click to create a new design challenge.
- */
-export async function handleGenerateChallenge() {
+async function handleGenerateChallenge() {
     const keyword = dom.designChallengeTextarea.value.trim();
     if (!keyword) {
         alert("Please enter a keyword first (e.g., 'sustainable packaging').");
@@ -67,11 +73,7 @@ export async function handleGenerateChallenge() {
     dom.designChallengeTextarea.disabled = false;
 }
 
-/**
- * Handles sending a message from any of the phase chat inputs.
- * @param {Event} event - The click or keyup event.
- */
-export async function handlePhaseInteraction(event) {
+async function handlePhaseInteraction(event) {
     const button = event.target.closest('.chat-send-btn');
     const input = button ? button.previousElementSibling : (event.target.tagName === 'INPUT' ? event.target : null);
     if (!input || (event.type === 'keyup' && event.key !== 'Enter')) return;

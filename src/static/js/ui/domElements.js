@@ -8,24 +8,30 @@ export const dom = {
     // Main Navigation
     mainNav: document.getElementById('main-nav'),
     hamburgerMenu: document.getElementById('hamburger-menu'),
+    projectTitle: document.getElementById('project-title'),
+    collapsedTitle: document.getElementById('collapsed-title'),
     
     // Mission Control
-    mcSetupPane: document.getElementById('mc-setup-pane'),
     agentListContainer: document.getElementById('agent-list-container'),
     editTeamBtn: document.getElementById('edit-team-btn'),
     agentEditPanel: document.getElementById('agent-edit-panel'),
     confirmTeamBtn: document.getElementById('confirm-team-btn'),
     startBtn: document.getElementById('start-btn'),
-    pauseBtn: document.getElementById('pause-btn'),
     resetBtn: document.getElementById('reset-btn'),
     missionControlPhase: document.getElementById('mission-control-phase'),
     statusEl: document.getElementById('sim-status'),
     feedEl: document.getElementById('live-feed'),
-    speedSlider: document.getElementById('speed-slider'),
     generateChallengeBtn: document.getElementById('generate-challenge-btn'),
     designChallengeTextarea: document.getElementById('design-challenge'),
     loadingSpinner: document.getElementById('loading-spinner'),
     
+    // Simulation controls
+    pauseBtn: document.getElementById('pause-btn'),
+    speedSlider: document.getElementById('speed-slider'),
+
+    // Action Hub
+    agentActionButtons: document.getElementById('agent-action-buttons'),
+
     // Empathize Phase
     empathizeChatToggle: document.getElementById('empathize-chat-toggle'),
     empathizeChatContainer: document.getElementById('empathize-chat-container'),

@@ -1,70 +1,123 @@
-// src/js/core/simulation.js
+// src/js/core/directed_logic.js
 
-// Imports for configuration, state, and UI rendering
 import { agents } from '../config/agents.js';
-import { phases, simulationFlow } from '../config/simulationFlow.js';
+import { phases } from '../config/simulationFlow.js';
 import { getCollectedData, updateCollectedData, resetCollectedData } from '../state/appState.js';
 import { dom } from '../ui/domElements.js';
 import { switchView } from '../ui/viewManager.js';
 import * as renderers from '../ui/renderers.js';
 import { callGemini, saveDesignChallenge } from './api.js';
 
-let simInterval;
-let scriptIndex = 0;
-let isPaused = false;
-let currentPhase = -1;
+let currentPhase = 'empathize';
+let availableTasks = [];
 
-// --- Main Simulation Logic ---
-
-export async function processScriptStep() {
-    if (isPaused || scriptIndex >= simulationFlow.length) {
-        if (scriptIndex >= simulationFlow.length) stopSimulation();
+export async function startDirectedWorkflow() {
+    const challengeText = dom.designChallengeTextarea.value.trim();
+    if (challengeText === '') {
+        alert("Please provide a design challenge before starting.");
         return;
     }
 
-    const step = simulationFlow[scriptIndex];
-    const activeAgents = Array.from(document.querySelectorAll('.agent-toggle:checked')).map(el => el.value);
-    
-    if (step.agent && !activeAgents.includes(step.agent) && step.agent !== 'director') {
-        scriptIndex++;
-        processScriptStep();
-        return;
-    }
-    
-    const challenge = dom.designChallengeTextarea.value;
-    const agentName = step.agent ? agents.find(a => a.id === step.agent).name : '';
+    await saveDesignChallenge(challengeText);
 
-    switch (step.type) {
-        case 'phase_marker':
-            renderers.addMessageToFeed(null, `Entering ${phases[step.phase]} Phase`, 'phase_marker');
-            updateMissionControlPhase(step.phase);
-            break;
-        case 'phase':
-            currentPhase = step.phase;
-            switchView(`${phases[currentPhase].toLowerCase().replace(/ & /g, '-').replace(' ', '-')}-view`);
-            break;
-        case 'msg':
-            const content = typeof step.content === 'function' ? step.content(challenge, getCollectedData()) : step.content;
-            renderers.addMessageToFeed(step.agent, content, step.thought ? 'thought' : 'msg');
-            break;
-        case 'gate':
-            stopInterval();
-            renderers.renderContinueButton();
-            break;
-        case 'call_gemini':
-            await handleGeminiCall(step, agentName, challenge);
-            break;
-        case 'end':
-            stopSimulation();
-            dom.statusEl.textContent = 'Completed';
-            dom.statusEl.className = 'font-semibold text-green-400';
-            break;
-    }
-
-    scriptIndex++;
+    resetDirectedWorkflow(true);
+    dom.startBtn.disabled = true;
+    dom.statusEl.textContent = 'In Progress';
+    dom.statusEl.className = 'font-semibold text-blue-400';
+    
+    renderers.addMessageToFeed(null, `Starting the design thinking process.`, 'phase_marker');
+    updateAvailableTasks();
+    renderActionButtons();
 }
 
-export async function handleGeminiCall(step, agentName, challenge) {
+function updateAvailableTasks() {
+    const data = getCollectedData();
+    availableTasks = [];
+
+    switch (currentPhase) {
+        case 'empathize':
+            if (!data.persona) availableTasks.push({ agent: 'anthropologist', task: 'generate_persona' });
+            if (data.persona && !data.quotes) availableTasks.push({ agent: 'anthropologist', task: 'generate_quotes' });
+            if (data.persona && !data.hmw) availableTasks.push({ agent: 'anthropologist', task: 'generate_hmw' });
+            break;
+        case 'define':
+            if (data.persona && !data.pov) availableTasks.push({ agent: 'director', task: 'generate_pov' });
+            if (data.pov && !data.metrics) availableTasks.push({ agent: 'director', task: 'generate_metrics' });
+            if (!data.scope) availableTasks.push({ agent: 'director', task: 'define_scope' });
+            if (data.pov && !data.problemStatement) availableTasks.push({ agent: 'director', task: 'generate_problem_statement' });
+            if (data.problemStatement && data.hmw && !data.refinedHmw) availableTasks.push({ agent: 'director', task: 'refine_hmw' });
+            break;
+        case 'ideate':
+            if (data.refinedHmw && !data.ideas) availableTasks.push({ agent: 'cross_pollinator', task: 'analogous_brainstorm' });
+            if (data.ideas && !data.evaluatedIdeas) availableTasks.push({ agent: 'collaborator', task: 'evaluate_effort_impact' });
+            if (data.evaluatedIdeas && !data.winningConcept) availableTasks.push({ agent: 'director', task: 'select_winning_concept' });
+            break;
+        case 'prototype':
+            if (data.winningConcept && !data.obstacles) availableTasks.push({ agent: 'hurdler', task: 'analyze_obstacles' });
+            break;
+        case 'finalize':
+            if (data.winningConcept && !data.finalPitch) availableTasks.push({ agent: 'storyteller', task: 'finalize' });
+            break;
+    }
+
+    if (availableTasks.length === 0) {
+        advancePhase();
+    }
+}
+
+function advancePhase() {
+    const phaseKeys = Object.keys(phases);
+    const currentPhaseIndex = phaseKeys.indexOf(currentPhase);
+
+    if (currentPhaseIndex < phaseKeys.length - 1) {
+        currentPhase = phaseKeys[currentPhaseIndex + 1];
+        renderers.addMessageToFeed(null, `Entering ${phases[currentPhase]} Phase`, 'phase_marker');
+        updateMissionControlPhase(currentPhase);
+        switchView(`${phases[currentPhase].toLowerCase().replace(/ & /g, '-').replace(' ', '-')}-view`);
+        updateAvailableTasks();
+        renderActionButtons();
+    } else {
+        renderers.addMessageToFeed(null, 'Design thinking process complete!', 'phase_marker');
+        dom.actionHub.classList.add('hidden');
+        dom.statusEl.textContent = 'Completed';
+        dom.statusEl.className = 'font-semibold text-green-400';
+    }
+}
+
+function renderActionButtons() {
+    dom.agentActionButtons.innerHTML = '';
+    const activeAgents = Array.from(document.querySelectorAll('.agent-toggle:checked')).map(el => el.value);
+
+    availableTasks.forEach(task => {
+        if (activeAgents.includes(task.agent)) {
+            const agent = agents.find(a => a.id === task.agent);
+            const button = document.createElement('button');
+            button.className = 'agent-action-btn bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full flex items-center justify-center transition';
+            button.dataset.agent = task.agent;
+            button.dataset.task = task.task;
+            button.innerHTML = `<span class="text-2xl">${agent.avatar}</span>`;
+            dom.agentActionButtons.appendChild(button);
+        }
+    });
+
+    if (dom.agentActionButtons.children.length > 0) {
+        dom.actionHub.classList.remove('hidden');
+    } else {
+        dom.actionHub.classList.add('hidden');
+    }
+}
+
+export async function executeTask(agentId, taskId) {
+    const challenge = dom.designChallengeTextarea.value;
+    const agent = agents.find(a => a.id === agentId);
+
+    await handleGeminiCall({ agent: agentId, task: taskId }, agent.name, challenge);
+
+    updateAvailableTasks();
+    renderActionButtons();
+}
+
+async function handleGeminiCall(step, agentName, challenge) {
     renderers.addMessageToFeed(step.agent, 'Thinking...', 'thought');
     const data = getCollectedData();
     let prompt = '';
@@ -138,7 +191,9 @@ export async function handleGeminiCall(step, agentName, challenge) {
             refine_hmw: 'refinedHmw',
             analogous_brainstorm: 'ideas',
             evaluate_effort_impact: 'evaluatedIdeas',
-            select_winning_concept: 'winningConcept'
+            select_winning_concept: 'winningConcept',
+            analyze_obstacles: 'obstacles',
+            finalize: 'finalPitch'
         };
         const stateKey = keyMap[step.task];
         if(stateKey) {
@@ -191,63 +246,12 @@ export async function handleGeminiCall(step, agentName, challenge) {
     }
 }
 
-
-// --- Simulation Controls ---
-export function stopInterval() { clearInterval(simInterval); }
-
-export function startInterval() {
-    const speed = (6 - dom.speedSlider.value) * 1200;
-    simInterval = setInterval(processScriptStep, speed);
-}
-
-export async function startSimulation() {
-    const challengeText = dom.designChallengeTextarea.value.trim();
-    if (challengeText === '') {
-        alert("Please provide a design challenge before starting.");
-        return;
-    }
-
-    // Save the challenge to the backend
-    await saveDesignChallenge(challengeText);
-
-    resetSimulation(true);
-    dom.startBtn.disabled = true;
-    dom.pauseBtn.disabled = false;
-    isPaused = false;
-    dom.statusEl.textContent = 'Running...';
-    dom.statusEl.className = 'font-semibold text-blue-400';
-    startInterval();
-}
-
-export function pauseSimulation() {
-    isPaused = !isPaused;
-    if (isPaused) {
-        stopInterval();
-        dom.pauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-        dom.statusEl.textContent = 'Paused';
-        dom.statusEl.className = 'font-semibold text-yellow-400';
-    } else {
-        dom.statusEl.textContent = 'Running...';
-        dom.statusEl.className = 'font-semibold text-blue-400';
-        startInterval();
-        dom.pauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-    }
-}
-
-export function stopSimulation() {
-    stopInterval();
-    dom.startBtn.disabled = true;
-    dom.pauseBtn.disabled = true;
-}
-
-export function resetSimulation(keepChallenge = false) {
-    stopInterval();
-    scriptIndex = 0;
-    currentPhase = -1;
-    isPaused = false;
+export function resetDirectedWorkflow(keepChallenge = false) {
+    currentPhase = 'empathize';
+    availableTasks = [];
     resetCollectedData();
     
-    if (dom.feedEl) dom.feedEl.innerHTML = `<div class="text-center text-gray-500"><p>Simulation reset. Ready to begin.</p></div>`;
+    if (dom.feedEl) dom.feedEl.innerHTML = `<div class="text-center text-gray-500"><p>Workflow reset. Ready to begin.</p></div>`;
     if (!keepChallenge) dom.designChallengeTextarea.value = '';
 
     document.querySelectorAll('.whiteboard-grid > div').forEach(el => {
@@ -258,12 +262,11 @@ export function resetSimulation(keepChallenge = false) {
     
     renderers.renderAgents();
     dom.startBtn.disabled = false;
-    dom.pauseBtn.disabled = true;
     dom.statusEl.textContent = 'Idle';
+    dom.actionHub.classList.add('hidden');
     switchView('mission-control-view');
 }
 
-// --- UI Updates ---
-export function updateMissionControlPhase(phaseIndex) {
-    dom.missionControlPhase.textContent = phases[phaseIndex];
+function updateMissionControlPhase(phaseKey) {
+    dom.missionControlPhase.textContent = phases[phaseKey];
 }

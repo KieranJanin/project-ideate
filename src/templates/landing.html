@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project IDEATE - Choose Your Workflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .workflow-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .workflow-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center h-screen">
+    <div class="text-center max-w-4xl mx-auto p-8">
+        <h1 class="text-5xl font-bold text-white mb-4">Welcome to Project IDEATE</h1>
+        <p class="text-xl text-gray-400 mb-12">Your agentic partner in creative design thinking.</p>
+        
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Automated Simulation Card -->
+            <a href="/simulation" class="workflow-card bg-gray-800 rounded-lg p-8 w-full md:w-1/2 flex flex-col items-center no-underline">
+                <div class="text-5xl mb-4">🚀</div>
+                <h2 class="text-2xl font-semibold text-white mb-3">Automated Simulation</h2>
+                <p class="text-gray-400 mb-6">Observe an AI agent team autonomously work through the design thinking process. Ideal for learning and inspiration.</p>
+                <span class="text-blue-400 font-semibold hover:text-blue-300">Start Simulation &rarr;</span>
+            </a>
+            
+            <!-- User-Directed Workflow Card -->
+            <a href="/directed" class="workflow-card bg-gray-800 rounded-lg p-8 w-full md:w-1/2 flex flex-col items-center no-underline">
+                <div class="text-5xl mb-4">👇</div>
+                <h2 class="text-2xl font-semibold text-white mb-3">User-Directed Workflow</h2>
+                <p class="text-gray-400 mb-6">Take the driver's seat. You decide which agent performs a task at each step of the process. Ideal for active workshopping.</p>
+                <span class="text-green-400 font-semibold hover:text-green-300">Start Directed Process &rarr;</span>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

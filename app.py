@@ -59,13 +59,25 @@ def get_gemini_api_key():
     return jsonify({"message": "API key is handled securely on the backend."})
 
 @app.route('/')
-def index():
+def landing():
     """
-    NEW: This route serves the main user interface.
-    When a user navigates to the root URL, Flask will find 'index.html'
-    in the 'templates' folder and return it.
+    Serves the new landing page.
     """
-    return render_template('index.html')
+    return render_template('landing.html')
+
+@app.route('/simulation')
+def simulation():
+    """
+    Serves the simulation page.
+    """
+    return render_template('simulation.html')
+
+@app.route('/directed')
+def directed():
+    """
+    Serves the directed workflow page.
+    """
+    return render_template('directed.html')
 
 @app.route('/api/generate-challenge', methods=['POST'])
 def generate_challenge():
