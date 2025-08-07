@@ -5,9 +5,9 @@
  * @param {string} viewId - The ID of the view element to make active.
  */
 export function switchView(viewId) {
-    // Hide all views by removing the .active class
+    // Hide all views
     document.querySelectorAll('.view').forEach(view => {
-        view.classList.remove('active');
+        view.classList.add('hidden');
     });
     
     // Deactivate all navigation links
@@ -20,8 +20,7 @@ export function switchView(viewId) {
     const activeLink = document.querySelector(`.nav-link[data-view="${viewId}"]`);
     
     if (activeView) {
-        // Show the active view by adding the .active class
-        activeView.classList.add('active');
+        activeView.classList.remove('hidden');
     }
     if (activeLink) {
         activeLink.classList.add('active');

@@ -88,7 +88,7 @@ async function processScriptStep() {
             break;
         case 'gate':
             stopInterval();
-            renderers.renderContinueButton();
+            renderers.renderPhaseActions(currentPhase);
             break;
         case 'call_gemini':
             await handleGeminiCall(step, agentName, challenge);
@@ -101,6 +101,26 @@ async function processScriptStep() {
     }
 
     scriptIndex++;
+}
+
+export function advanceToNextPhase() {
+    startInterval();
+}
+
+export function refreshCurrentPhase() {
+    const phaseStartIndex = simulationFlow.findIndex(step => step.type === 'phase' && step.phase === currentPhase);
+    scriptIndex = phaseStartIndex;
+    
+    // Clear the whiteboard for the current phase
+    const view = document.getElementById(`${phases[currentPhase].toLowerCase().replace(/ & /g, '-').replace(' ', '-')}-view`);
+    if (view) {
+        const whiteboard = view.querySelector('.whiteboard-grid');
+        if (whiteboard) {
+            whiteboard.innerHTML = '';
+        }
+    }
+
+    startInterval();
 }
 
 function stopSimulation() {

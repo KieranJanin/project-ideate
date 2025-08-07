@@ -1,11 +1,12 @@
 // src/js/ui/directed_event_handlers.js
 
 import { dom } from './domElements.js';
-import { startDirectedWorkflow, resetDirectedWorkflow, executeTask } from '../core/directed_logic.js';
+import { startDirectedWorkflow, resetDirectedWorkflow, executeTask, advancePhase } from '../core/directed_logic.js';
 
 export function initializeDirectedEventListeners() {
     dom.startBtn.addEventListener('click', startDirectedWorkflow);
     dom.resetBtn.addEventListener('click', () => resetDirectedWorkflow(false));
+    dom.nextPhaseBtn.addEventListener('click', advancePhase);
 
     // Event listener for the agent action buttons
     dom.agentActionButtons.addEventListener('click', (e) => {

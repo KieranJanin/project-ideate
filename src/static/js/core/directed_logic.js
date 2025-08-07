@@ -61,11 +61,11 @@ function updateAvailableTasks() {
     }
 
     if (availableTasks.length === 0) {
-        advancePhase();
+        dom.nextPhaseBtn.classList.remove('hidden');
     }
 }
 
-function advancePhase() {
+export function advancePhase() {
     const phaseKeys = Object.keys(phases);
     const currentPhaseIndex = phaseKeys.indexOf(currentPhase);
 
@@ -76,6 +76,7 @@ function advancePhase() {
         switchView(`${phases[currentPhase].toLowerCase().replace(/ & /g, '-').replace(' ', '-')}-view`);
         updateAvailableTasks();
         renderActionButtons();
+        dom.nextPhaseBtn.classList.add('hidden');
     } else {
         renderers.addMessageToFeed(null, 'Design thinking process complete!', 'phase_marker');
         dom.actionHub.classList.add('hidden');
@@ -200,40 +201,21 @@ async function handleGeminiCall(step, agentName, challenge) {
             updateCollectedData(stateKey, response.statement ? response.statement : response);
         }
 
-        let renderer;
-        switch (step.task) {
-            case 'generate_hmw':
-                renderer = renderers['renderHMWs'];
-                break;
-            case 'generate_metrics':
-                renderer = renderers['renderSuccessMetrics'];
-                break;
-            case 'refine_hmw':
-                renderer = renderers['renderRefinedHMWs'];
-                break;
-            case 'generate_pov':
-                renderer = renderers['renderPOV'];
-                break;
-            case 'define_scope':
-                renderer = renderers['renderScope'];
-                break;
-            case 'generate_problem_statement':
-                renderer = renderers['renderProblemStatement'];
-                break;
-            case 'analogous_brainstorm':
-                renderer = renderers['renderAnalogousBrainstorm'];
-                break;
-            case 'evaluate_effort_impact':
-                renderer = renderers['renderEffortImpactMatrix'];
-                break;
-            case 'select_winning_concept':
-                renderer = renderers['renderWinningConcept'];
-                break;
-            default:
-                // Fallback for other tasks if they follow a consistent naming convention
-                renderer = renderers[`render${step.task.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('').replace('Generate', '').replace('Define', '').replace('Select', '').replace('Evaluate', '')}`];
-                break;
-        }
+        const rendererMap = {
+            generate_persona: renderers.renderPersona,
+            generate_quotes: renderers.renderKeyQuotes,
+            generate_hmw: renderers.renderHMWs,
+            generate_pov: renderers.renderPOV,
+            generate_metrics: renderers.renderSuccessMetrics,
+            define_scope: renderers.renderScope,
+            generate_problem_statement: renderers.renderProblemStatement,
+            refine_hmw: renderers.renderRefinedHMWs,
+            analogous_brainstorm: renderers.renderAnalogousBrainstorm,
+            evaluate_effort_impact: renderers.renderEffortImpactMatrix,
+            select_winning_concept: renderers.renderWinningConcept,
+        };
+
+        const renderer = rendererMap[step.task];
 
         if (renderer) {
             renderer(response.statement ? response.statement : response);
@@ -264,6 +246,7 @@ export function resetDirectedWorkflow(keepChallenge = false) {
     dom.startBtn.disabled = false;
     dom.statusEl.textContent = 'Idle';
     dom.actionHub.classList.add('hidden');
+    dom.nextPhaseBtn.classList.add('hidden');
     switchView('mission-control-view');
 }
 

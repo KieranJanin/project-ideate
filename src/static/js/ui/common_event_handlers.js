@@ -10,12 +10,20 @@ export function initializeCommonEventListeners() {
     // Hamburger Menu Toggle
     if (dom.hamburgerMenu && dom.mainNav) {
         dom.hamburgerMenu.addEventListener('click', () => {
-            dom.mainNav.classList.toggle('lg:w-64');
-            dom.mainNav.classList.toggle('lg:w-20');
-            dom.mainNav.classList.toggle('nav-collapsed');
-            
-            dom.projectTitle.classList.toggle('hidden');
-            dom.collapsedTitle.classList.toggle('hidden');
+            const isCollapsed = dom.mainNav.classList.contains('nav-collapsed');
+            if (isCollapsed) {
+                // EXPAND
+                dom.mainNav.classList.remove('lg:w-20', 'nav-collapsed');
+                dom.mainNav.classList.add('lg:w-64');
+                dom.projectTitle.classList.remove('hidden');
+                dom.collapsedTitle.classList.add('hidden');
+            } else {
+                // COLLAPSE
+                dom.mainNav.classList.add('lg:w-20', 'nav-collapsed');
+                dom.mainNav.classList.remove('lg:w-64');
+                dom.projectTitle.classList.add('hidden');
+                dom.collapsedTitle.classList.remove('hidden');
+            }
         });
     }
 
@@ -49,13 +57,14 @@ export function initializeCommonEventListeners() {
         if (link) { e.preventDefault(); switchView(link.getAttribute('data-view')); }
     });
 
-    dom.confirmTeamBtn.addEventListener('click', () => {
-        dom.agentEditPanel.classList.add('hidden');
-        dom.editTeamBtn.classList.remove('hidden');
-    });
     dom.editTeamBtn.addEventListener('click', () => {
         dom.agentEditPanel.classList.remove('hidden');
         dom.editTeamBtn.classList.add('hidden');
+    });
+
+    dom.confirmTeamBtn.addEventListener('click', () => {
+        dom.agentEditPanel.classList.add('hidden');
+        dom.editTeamBtn.classList.remove('hidden');
     });
 }
 

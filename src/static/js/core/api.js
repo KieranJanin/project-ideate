@@ -2,126 +2,99 @@
 import { dom } from '../ui/domElements.js';
 
 /**
- * Fetches the API key from the backend. This function is no longer needed on the frontend
- * as the backend will handle all direct calls to the Gemini API securely.
- * This function is kept as a placeholder if you decide to have a separate frontend API key check.
- */
-export async function fetchApiKey() {
-    console.log("Frontend fetchApiKey is deprecated. Backend handles API key securely.");
-    // In a production app, you might still fetch a non-sensitive 'client_id'
-    // or a session token from the backend for authentication.
-}
-
-/**
- * Saves the design challenge to the backend.
- * @param {string} challengeText - The text of the design challenge.
- * @returns {Promise<object|null>} The server response or null on failure.
- */
-export async function saveDesignChallenge(challengeText) {
-    console.log("LOG: Saving design challenge to backend.");
-    const backendApiUrl = 'http://localhost:5000/api/save-challenge';
-
-    const payload = {
-        challenge: challengeText
-    };
-
-    try {
-        const response = await fetch(backendApiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const errorDetail = await response.json().catch(() => ({ error: 'No error details provided' }));
-            console.error("Backend save error response:", errorDetail);
-            throw new Error(`Backend save error: ${response.status} ${response.statusText} - ${errorDetail.error || 'Unknown error'}`);
-        }
-
-        const result = await response.json();
-        console.log("LOG: Design challenge saved successfully:", result);
-        return result;
-    } catch (error) {
-        console.error("Failed to save design challenge:", error);
-        alert(`Error: Could not save the design challenge. Please check the console for details.`);
-        return null;
-    }
-}
-
-/**
- * Makes a network request to your Flask backend's Gemini proxy endpoint.
- * The Flask backend will then securely call the actual Gemini API.
+ * Makes a network request to the backend Gemini proxy.
+ * Can handle both standard and streaming responses.
+ * 
  * @param {string} prompt - The prompt to send to the language model.
- * @param {boolean} isJson - Whether to request a JSON response from the backend (for Gemini).
- * @returns {Promise<object|string|null>} The parsed JSON object, text response, or null on failure.
+ * @param {boolean} isJson - Whether to request a JSON response. (Not used for streaming).
+ * @param {boolean} stream - Whether to request a streaming response.
+ * @param {function} onStream - Callback function to handle incoming stream chunks.
+ * @returns {Promise<object|string|null>} For non-streaming, the response. For streaming, a promise that resolves when the stream ends.
  */
-export async function callGemini(prompt, isJson = false) {
-    isCallingAPI(true); // Show loading spinner
-    console.log("LOG: Sending prompt to backend for Gemini call:", prompt);
-
-    // --- IMPORTANT CHANGE: Call YOUR Flask backend, not Google's API directly ---
-    const backendApiUrl = 'http://localhost:5000/api/gemini-proxy'; // Your new Flask endpoint
+export function callGemini(prompt, isJson = false, stream = false, onStream = null) {
+    isCallingAPI(true);
+    const backendApiUrl = 'http://localhost:5000/api/gemini-proxy';
 
     const payload = { 
         prompt: prompt,
-        is_json: isJson // Pass this to backend to tell Gemini how to respond
+        is_json: isJson,
+        stream: stream
     };
 
-    try {
-        const response = await fetch(backendApiUrl, {
+    if (stream && onStream) {
+        // --- Streaming Logic ---
+        return new Promise((resolve, reject) => {
+            const eventSource = new EventSource(`${backendApiUrl}?prompt=${encodeURIComponent(prompt)}`);
+            
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.event === 'EOS') {
+                    eventSource.close();
+                    isCallingAPI(false);
+                    resolve();
+                } else {
+                    onStream(data.text);
+                }
+            };
+
+            eventSource.onerror = (err) => {
+                console.error("EventSource failed:", err);
+                eventSource.close();
+                isCallingAPI(false);
+                reject(new Error("Stream failed"));
+            };
+
+            // We need to send the payload via a POST request to initiate the stream
+            fetch(backendApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to start stream');
+                }
+            }).catch(error => {
+                console.error("Stream initiation failed:", error);
+                isCallingAPI(false);
+                reject(error);
+            });
+        });
+
+    } else {
+        // --- Standard (Non-Streaming) Logic ---
+        return fetch(backendApiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error || 'Unknown backend error'); });
+            }
+            return response.json();
+        })
+        .then(result => {
+            if (isJson) {
+                return result;
+            }
+            return result.text || result;
+        })
+        .catch(error => {
+            console.error("Backend proxy call failed:", error);
+            return isJson ? null : `Error during API call: ${error.message}`;
+        })
+        .finally(() => {
+            isCallingAPI(false);
         });
-
-        if (!response.ok) {
-            const errorDetail = await response.json().catch(() => ({ error: 'No error details provided' }));
-            console.error("Backend proxy error response:", errorDetail);
-            throw new Error(`Backend proxy error: ${response.status} ${response.statusText} - ${errorDetail.error || 'Unknown error'}`);
-        }
-
-        const result = await response.json();
-
-        // The backend should return the raw text or parsed JSON directly
-        if (isJson) {
-            // Backend should return already parsed JSON, so no need for regex match here.
-            return result;
-        }
-
-        // If we are expecting text, extract it from the response.
-        if (result && typeof result.text === 'string') {
-            return result.text;
-        }
-
-        // The backend is returning a JSON array of strings.
-        // Extract the first string from the array.
-        if (Array.isArray(result) && typeof result[0] === 'string') {
-            return result[0];
-        }
-        // Fallback in case the backend response format changes unexpectedly
-        console.warn("Unexpected response format from backend:", result);
-        return result; // Return the raw result for further inspection if needed
-    } catch (error) {
-        console.error("Backend proxy call failed:", error);
-        return isJson ? null : `Error during API call: ${error.message}`;
-    } finally {
-        isCallingAPI(false);
     }
 }
 
 /**
  * Toggles the visibility of the global loading spinner.
- * Assumes `dom` is imported and contains a `loadingSpinner` element.
  * @param {boolean} isLoading - Whether the API call is in progress.
  */
-export function isCallingAPI(isLoading) {
+function isCallingAPI(isLoading) {
     if (dom && dom.loadingSpinner) {
-        if (isLoading) {
-            dom.loadingSpinner.classList.remove('hidden');
-        } else {
-            dom.loadingSpinner.classList.add('hidden');
-        }
-    } else {
-        console.warn("DOM element 'loadingSpinner' not found for isCallingAPI.");
+        dom.loadingSpinner.style.display = isLoading ? 'block' : 'none';
     }
 }
