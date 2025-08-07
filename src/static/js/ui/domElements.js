@@ -7,8 +7,10 @@
 export const dom = {
     // Main Navigation
     mainNav: document.getElementById('main-nav'),
+    hamburgerMenu: document.getElementById('hamburger-menu'),
     
     // Mission Control
+    mcSetupPane: document.getElementById('mc-setup-pane'),
     agentListContainer: document.getElementById('agent-list-container'),
     editTeamBtn: document.getElementById('edit-team-btn'),
     agentEditPanel: document.getElementById('agent-edit-panel'),

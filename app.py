@@ -1,8 +1,10 @@
 import os
 import sys
+import json
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import google.generativeai as genai
+from datetime import datetime
 
 # --- Path setup for package import ---
 # This ensures that 'project_ideate' can be imported when running app.py directly.
@@ -86,6 +88,36 @@ def generate_challenge():
     generated_text = call_gemini_api(prompt)
     
     return jsonify({"challenge": generated_text})
+
+@app.route('/api/save-challenge', methods=['POST'])
+def save_challenge():
+    """
+    Saves the design challenge to a file in the data/inputs directory.
+    """
+    data = request.get_json()
+    challenge = data.get('challenge')
+
+    if not challenge:
+        return jsonify({"error": "Challenge is required."}), 400
+
+    try:
+        # Create a timestamp for the filename
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = f"design_challenge_{timestamp}.json"
+        filepath = os.path.join(project_root, 'data', 'inputs', filename)
+
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+        # Save the challenge to the file
+        with open(filepath, 'w') as f:
+            json.dump({"challenge": challenge}, f, indent=4)
+
+        return jsonify({"message": "Challenge saved successfully.", "filepath": filepath}), 200
+    except Exception as e:
+        print(f"🔴 Error saving challenge: {e}")
+        return jsonify({"error": f"An error occurred while saving the challenge: {str(e)}"}), 500
+
 
 @app.route('/api/run-simulation', methods=['POST'])
 def run_simulation():

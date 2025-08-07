@@ -5,7 +5,7 @@
   channel = "stable-24.05"; # or "unstable"
   # Use https://search.nixos.org/packages to find packages
   packages = [
-    pkgs.python311
+    pkgs.python311 
     pkgs.python311Packages.pip
     pkgs.python311Packages.fastapi
     pkgs.python311Packages.uvicorn
@@ -13,7 +13,6 @@
     pkgs.nodejs_20
     # Add Conda and Mamba here
     pkgs.conda
-    pkgs.mamba
   ];
   # Sets environment variables in the workspace
   env = {

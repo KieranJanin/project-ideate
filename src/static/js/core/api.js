@@ -13,6 +13,42 @@ export async function fetchApiKey() {
 }
 
 /**
+ * Saves the design challenge to the backend.
+ * @param {string} challengeText - The text of the design challenge.
+ * @returns {Promise<object|null>} The server response or null on failure.
+ */
+export async function saveDesignChallenge(challengeText) {
+    console.log("LOG: Saving design challenge to backend.");
+    const backendApiUrl = 'http://localhost:5000/api/save-challenge';
+
+    const payload = {
+        challenge: challengeText
+    };
+
+    try {
+        const response = await fetch(backendApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorDetail = await response.json().catch(() => ({ error: 'No error details provided' }));
+            console.error("Backend save error response:", errorDetail);
+            throw new Error(`Backend save error: ${response.status} ${response.statusText} - ${errorDetail.error || 'Unknown error'}`);
+        }
+
+        const result = await response.json();
+        console.log("LOG: Design challenge saved successfully:", result);
+        return result;
+    } catch (error) {
+        console.error("Failed to save design challenge:", error);
+        alert(`Error: Could not save the design challenge. Please check the console for details.`);
+        return null;
+    }
+}
+
+/**
  * Makes a network request to your Flask backend's Gemini proxy endpoint.
  * The Flask backend will then securely call the actual Gemini API.
  * @param {string} prompt - The prompt to send to the language model.

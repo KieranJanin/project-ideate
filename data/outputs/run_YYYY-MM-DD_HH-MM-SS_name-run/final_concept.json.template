@@ -1,0 +1,24 @@
+{
+  "title": "Flow: The Freelancer's Financial Co-Pilot",
+  "narrative": "For freelancers who feel anxious and overwhelmed by unpredictable income, 'Flow' is an intelligent mobile banking app that provides peace of mind. Unlike traditional banks, Flow actively smooths out the peaks and valleys of freelance life by automatically adjusting savings based on your income, so you're always prepared for taxes and can focus on what you do best.",
+  "key_features": [
+    {
+      "name": "Smart Vaults",
+      "description": "Automatically partitions a percentage of every incoming payment into dedicated 'Tax' and 'Savings' vaults."
+    },
+    {
+      "name": "Adaptive Percentage",
+      "description": "The savings percentage intelligently adjusts based on your recent income. Higher savings in high-income months, lower in low-income months to preserve cash flow."
+    },
+    {
+      "name": "Income Forecaster",
+      "description": "Provides a simple, visual projection of your estimated annual income and tax liability based on your work so far."
+    },
+    {
+      "name": "Community Insights",
+      "description": "Offers anonymized financial benchmarks from other freelancers in your field to help you set rates and plan your finances."
+    }
+  ],
+  "feasibility_score": 0.85,
+  "novelty_score": 0.75
+}

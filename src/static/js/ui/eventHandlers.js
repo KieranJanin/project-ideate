@@ -11,6 +11,13 @@ import { agents } from '../config/agents.js';
  * Sets up all the event listeners for the application.
  */
 export function initializeEventListeners() {
+    // Hamburger Menu Toggle
+    if (dom.hamburgerMenu && dom.mcSetupPane) {
+        dom.hamburgerMenu.addEventListener('click', () => {
+            dom.mcSetupPane.classList.toggle('hidden');
+        });
+    }
+
     dom.generateChallengeBtn.addEventListener('click', handleGenerateChallenge);
             
     document.querySelectorAll('.chat-send-btn').forEach(btn => btn.addEventListener('click', handlePhaseInteraction));
@@ -30,7 +37,7 @@ export function initializeEventListeners() {
         const link = e.target.closest('.nav-link');
         if (link) { e.preventDefault(); switchView(link.getAttribute('data-view')); }
     });
-    dom.startBtn.addEventListener('click', startSimulation);
+    dom.startBtn.addEventListener('click', () => startSimulation());
     dom.pauseBtn.addEventListener('click', pauseSimulation);
     dom.resetBtn.addEventListener('click', () => resetSimulation(false));
     dom.confirmTeamBtn.addEventListener('click', () => {

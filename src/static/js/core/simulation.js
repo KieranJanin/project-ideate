@@ -7,7 +7,7 @@ import { getCollectedData, updateCollectedData, resetCollectedData } from '../st
 import { dom } from '../ui/domElements.js';
 import { switchView } from '../ui/viewManager.js';
 import * as renderers from '../ui/renderers.js';
-import { callGemini } from './api.js';
+import { callGemini, saveDesignChallenge } from './api.js';
 
 let simInterval;
 let scriptIndex = 0;
@@ -200,11 +200,16 @@ export function startInterval() {
     simInterval = setInterval(processScriptStep, speed);
 }
 
-export function startSimulation() {
-    if (dom.designChallengeTextarea.value.trim() === '') {
+export async function startSimulation() {
+    const challengeText = dom.designChallengeTextarea.value.trim();
+    if (challengeText === '') {
         alert("Please provide a design challenge before starting.");
         return;
     }
+
+    // Save the challenge to the backend
+    await saveDesignChallenge(challengeText);
+
     resetSimulation(true);
     dom.startBtn.disabled = true;
     dom.pauseBtn.disabled = false;
