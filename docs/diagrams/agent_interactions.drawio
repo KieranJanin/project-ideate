@@ -1,0 +1,49 @@
+<mxfile host="65bd71144e">
+    <diagram id="LEpw3RQWQwGwoPKCoBjJ" name="Page-1">
+        <mxGraphModel dx="700" dy="940" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;span style=&quot;background-color: initial; font-size: 22px;&quot;&gt;📢&lt;/span&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="275" y="160" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="&lt;div style=&quot;color: rgb(225, 223, 223); background-color: rgb(31, 31, 31); font-family: &amp;quot;JetBrains Mono&amp;quot;, Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace, Consolas, &amp;quot;Courier New&amp;quot;, monospace; line-height: 20px;&quot;&gt;&lt;span style=&quot;color: rgb(119, 213, 163);&quot;&gt;&lt;font style=&quot;font-size: 22px;&quot;&gt;🤝&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="335" y="160" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="🚧&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="395" y="160" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="🏗️&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="275" y="240" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="🖼️&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="335" y="240" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="📜&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="455" y="240" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="❤️&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="395" y="240" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="&lt;font face=&quot;JetBrains Mono, Menlo, Monaco, Courier New, monospace, Consolas, Courier New, monospace&quot; color=&quot;#77d5a3&quot;&gt;🧑&lt;/font&gt;&lt;div style=&quot;color: rgb(225, 223, 223); background-color: rgb(31, 31, 31); font-family: &amp;quot;JetBrains Mono&amp;quot;, Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace, Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 22px; line-height: 20px;&quot;&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="275" y="80" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="&lt;div style=&quot;color: rgb(225, 223, 223); background-color: rgb(31, 31, 31); font-family: &amp;quot;JetBrains Mono&amp;quot;, Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace, Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 22px; line-height: 20px;&quot;&gt;&lt;span style=&quot;color: rgb(119, 213, 163); font-size: 22px;&quot;&gt;🧪&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="335" y="80" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="&lt;div style=&quot;color: rgb(225, 223, 223); background-color: rgb(31, 31, 31); font-family: &amp;quot;JetBrains Mono&amp;quot;, Menlo, Monaco, &amp;quot;Courier New&amp;quot;, monospace, Consolas, &amp;quot;Courier New&amp;quot;, monospace; font-size: 22px; line-height: 20px;&quot;&gt;&lt;span style=&quot;color: rgb(119, 213, 163); font-size: 22px;&quot;&gt;🐝&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;font-size: 22px;&quot;&gt;&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;align=center;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="395" y="80" width="40" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Learning&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="145" y="80" width="90" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Organizing&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="160" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;Building&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=22;" vertex="1" parent="1">
+                    <mxGeometry x="150" y="240" width="80" height="40" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

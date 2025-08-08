@@ -5,7 +5,7 @@
  * Each agent has an ID, name, role description, avatar, and category.
  */
 export const agents = [
-    { id: 'anthropologist', name: 'Anthropologist', role: 'Observes human behavior to find deep, unbiased user insights.', avatar: '🌍', category: 'Learning' },
+    { id: 'anthropologist', name: 'Anthropologist', role: 'Observes human behavior to find deep, unbiased user insights.', avatar: '🧑', category: 'Learning' },
     { id: 'experimenter', name: 'Experimenter', role: 'Tests assumptions and prototypes ideas to gather data.', avatar: '🧪', category: 'Learning' },
     { id: 'cross-pollinator', name: 'Cross-Pollinator', role: 'Draws connections between unrelated fields to spark new ideas.', avatar: '🐝', category: 'Learning' },
     { id: 'director', name: 'Director', role: 'Manages the overall process and team.', avatar: '📢', category: 'Organizing' },
