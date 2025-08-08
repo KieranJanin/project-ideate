@@ -1,5 +1,7 @@
 // src/js/simulation_app.js
 
+console.log("simulation_app.js loaded."); // Added for debugging
+
 import { initializeDomElements } from './ui/domElements.js';
 import { initializeCommonEventListeners } from './ui/common_event_handlers.js';
 import { initializeSimulationEventListeners } from './ui/simulation_event_handlers.js';

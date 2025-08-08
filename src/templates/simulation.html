@@ -197,6 +197,12 @@
     </div>
     
     <!-- Main Application Script -->
-    <script type="module" src="{{ url_for('static', filename='js/simulation_app.js') }}"></script>
+    <script type="module">
+        const scriptUrl = "{{ url_for('static', filename='js/simulation_app.js') }}";
+        console.log("Attempting to load module from: " + scriptUrl);
+        import(scriptUrl)
+            .then(() => console.log("Module loaded successfully."))
+            .catch(error => console.error("Module loading failed:", error));
+    </script>
 </body>
 </html>

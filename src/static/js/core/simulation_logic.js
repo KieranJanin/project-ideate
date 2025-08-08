@@ -14,6 +14,7 @@ let isPaused = false;
 let currentPhase = 'empathize';
 
 export async function startSimulation() {
+    renderers.addMessageToFeed(null, 'Attempting to start simulation...', 'msg'); // Added for debugging
     const challengeText = dom.designChallengeTextarea.value.trim();
     if (challengeText === '') {
         alert("Please provide a design challenge before starting.");

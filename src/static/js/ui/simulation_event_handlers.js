@@ -4,9 +4,25 @@ import { dom } from './domElements.js';
 import { startSimulation, pauseSimulation, resetSimulation, advanceToNextPhase, refreshCurrentPhase } from '../core/simulation_logic.js';
 
 export function initializeSimulationEventListeners() {
-    dom.startBtn.addEventListener('click', startSimulation);
-    dom.pauseBtn.addEventListener('click', pauseSimulation);
-    dom.resetBtn.addEventListener('click', () => resetSimulation(false));
+    console.log('Initializing simulation event listeners...');
+    console.log('dom.startBtn:', dom.startBtn);
+    if (dom.startBtn) {
+        dom.startBtn.addEventListener('click', startSimulation);
+    } else {
+        console.error('Start button not found in DOM elements.');
+    }
+    
+    if (dom.pauseBtn) {
+        dom.pauseBtn.addEventListener('click', pauseSimulation);
+    } else {
+        console.error('Pause button not found in DOM elements.');
+    }
+
+    if (dom.resetBtn) {
+        dom.resetBtn.addEventListener('click', () => resetSimulation(false));
+    } else {
+        console.error('Reset button not found in DOM elements.');
+    }
 
     document.body.addEventListener('click', (e) => {
         if (e.target.classList.contains('next-phase-btn')) {

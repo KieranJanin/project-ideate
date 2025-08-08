@@ -90,6 +90,36 @@ export function callGemini(prompt, isJson = false, stream = false, onStream = nu
 }
 
 /**
+ * Sends the design challenge to the backend for saving.
+ * @param {string} challenge - The design challenge text.
+ * @returns {Promise<object>} The response from the backend.
+ */
+export async function saveDesignChallenge(challenge) {
+    isCallingAPI(true);
+    try {
+        const response = await fetch('http://localhost:5000/api/save-challenge', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ challenge: challenge }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to save design challenge.');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error saving design challenge:", error);
+        throw error;
+    } finally {
+        isCallingAPI(false);
+    }
+}
+
+/**
  * Toggles the visibility of the global loading spinner.
  * @param {boolean} isLoading - Whether the API call is in progress.
  */

@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-from flask import Flask, request, jsonify, render_template, Response
+from flask import Flask, request, jsonify, render_template, Response, make_response
 from flask_cors import CORS
 import google.generativeai as genai
 from datetime import datetime
@@ -36,7 +36,11 @@ def landing():
 @app.route('/simulation')
 def simulation():
     """Serves the simulation page."""
-    return render_template('simulation.html')
+    response = make_response(render_template('simulation.html'))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/directed')
 def directed():
