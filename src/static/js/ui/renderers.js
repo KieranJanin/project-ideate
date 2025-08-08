@@ -1,6 +1,7 @@
 // src/js/ui/renderers.js
 import { dom } from './domElements.js';
 import { agents } from '../config/agents.js';
+import { advanceToNextPhase } from '../core/simulation_logic.js'; // Import advanceToNextPhase
 
 // --- AGENT & FEED RENDERERS ---
 export function renderAgents() {
@@ -76,6 +77,20 @@ export function addMessageToFeed(agentId, content, type = 'msg', isAI = false) {
     msgDiv.innerHTML = html;
     dom.feedEl.appendChild(msgDiv);
     dom.feedEl.scrollTop = dom.feedEl.scrollHeight;
+}
+
+export function renderMissionControlPhaseActions() {
+    if (dom.missionControlActions) {
+        dom.missionControlActions.innerHTML = `
+            <button id="continue-next-phase-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center transition">
+                Continue to Next Phase <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        `;
+        document.getElementById('continue-next-phase-btn').addEventListener('click', () => {
+            advanceToNextPhase();
+            dom.missionControlActions.innerHTML = ''; // Clear the button after click
+        });
+    }
 }
 
 // --- WHITEBOARD RENDERERS ---

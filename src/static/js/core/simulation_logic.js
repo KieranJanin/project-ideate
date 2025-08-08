@@ -14,7 +14,6 @@ let isPaused = false;
 let currentPhase = 'empathize';
 
 export async function startSimulation() {
-    renderers.addMessageToFeed(null, 'Attempting to start simulation...', 'msg'); // Added for debugging
     const challengeText = dom.designChallengeTextarea.value.trim();
     if (challengeText === '') {
         alert("Please provide a design challenge before starting.");
@@ -89,10 +88,11 @@ async function processScriptStep() {
             break;
         case 'gate':
             stopInterval();
-            renderers.renderPhaseActions(currentPhase);
-            break;
-        case 'call_gemini':
-            await handleGeminiCall(step, agentName, challenge);
+            isPaused = true; // Explicitly set paused state
+            dom.pauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Show play icon
+            dom.statusEl.textContent = 'Paused';
+            dom.statusEl.className = 'font-semibold text-yellow-400';
+            renderers.renderMissionControlPhaseActions(); // Render the new button
             break;
         case 'end':
             stopSimulation();
@@ -105,6 +105,13 @@ async function processScriptStep() {
 }
 
 export function advanceToNextPhase() {
+    isPaused = false; // Set to not paused when continuing
+    dom.pauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; // Show pause icon again
+    dom.statusEl.textContent = 'Running...';
+    dom.statusEl.className = 'font-semibold text-blue-400';
+    
+    // Immediately process the next step after the gate
+    processScriptStep();
     startInterval();
 }
 

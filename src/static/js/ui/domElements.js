@@ -31,6 +31,7 @@ export function initializeDomElements() {
         generateChallengeBtn: document.getElementById('generate-challenge-btn'),
         designChallengeTextarea: document.getElementById('design-challenge'),
         loadingSpinner: document.getElementById('loading-spinner'),
+        missionControlActions: document.getElementById('mission-control-actions'), // Added this line
         
         // Simulation controls
         pauseBtn: document.getElementById('pause-btn'),

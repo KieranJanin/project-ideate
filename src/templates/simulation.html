@@ -93,6 +93,8 @@
             </div>
             <main id="mc-feed-pane" class="w-full lg:w-2/3 bg-gray-900 flex flex-col p-4 overflow-hidden">
                 <div id="live-feed" class="flex-grow overflow-y-auto custom-scrollbar p-4 space-y-6"></div>
+                <!-- New div for mission control phase actions -->
+                <div id="mission-control-actions" class="p-4 border-t border-gray-700 flex justify-end gap-4"></div>
             </main>
         </div>
         <!-- Other phase views remain the same -->
@@ -197,12 +199,6 @@
     </div>
     
     <!-- Main Application Script -->
-    <script type="module">
-        const scriptUrl = "{{ url_for('static', filename='js/simulation_app.js') }}";
-        console.log("Attempting to load module from: " + scriptUrl);
-        import(scriptUrl)
-            .then(() => console.log("Module loaded successfully."))
-            .catch(error => console.error("Module loading failed:", error));
-    </script>
+    <script type="module" src="{{ url_for('static', filename='js/simulation_app.js') }}"></script>
 </body>
 </html>
