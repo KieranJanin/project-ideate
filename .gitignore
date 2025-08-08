@@ -25,6 +25,7 @@ __pycache__/
 # Secrets - VERY IMPORTANT
 .env
 *.env
+project-ideate-firebase-adminsdk-fbsvc-3c8a3b1fde.json
 
 # Generated outputs & logs
 /data/outputs/
