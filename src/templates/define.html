@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project IDEATE - Directed Workflow</title>
+    <title>Project IDEATE - Define</title>
     
     <!-- External Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,13 +21,15 @@
     <!-- Primary Navigation Bar -->
     <nav id="main-nav" class="w-full lg:w-64 bg-gray-800 p-4 flex-shrink-0 flex flex-row lg:flex-col lg:space-y-2 overflow-x-auto lg:overflow-y-hidden transition-all duration-300">
         <header class="px-2 pb-4 hidden lg:flex justify-between items-center">
-            <div id="project-title" class="nav-text">
-                <h1 class="text-2xl font-bold text-white">Project IDEATE</h1>
-                <p class="text-xs text-gray-400">Agentic Workspace</p>
-            </div>
-            <div id="collapsed-title" class="hidden nav-text-collapsed">
-                <div class="boxed-i">I</div>
-            </div>
+            <a href="/" class="flex items-center no-underline">
+                <div id="project-title" class="nav-text">
+                    <h1 class="text-2xl font-bold text-white">Project IDEATE</h1>
+                    <p class="text-xs text-gray-400">Agentic Workspace</p>
+                </div>
+                <div id="collapsed-title" class="hidden nav-text-collapsed">
+                    <div class="boxed-i">I</div>
+                </div>
+            </a>
             <button id="hamburger-menu" class="text-gray-400 hover:text-white">
                 <i class="fas fa-bars"></i>
             </button>
@@ -38,7 +40,7 @@
                 <h2 class="nav-text px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:block">Phases</h2>
                 <div class="mt-2 flex flex-row lg:flex-col lg:space-y-1">
                     <a href="{{ url_for('empathize') }}" class="nav-link" data-view="empathize-view"><i class="fas fa-heart w-6 text-center"></i><span class="nav-text ml-3 hidden lg:inline">Empathize</span></a>
-                    <a href="{{ url_for('define') }}" class="nav-link" data-view="define-view"><i class="fas fa-bullseye w-6 text-center"></i><span class="nav-text ml-3 hidden lg:inline">Define</span></a>
+                    <a href="{{ url_for('define') }}" class="nav-link active" data-view="define-view"><i class="fas fa-bullseye w-6 text-center"></i><span class="nav-text ml-3 hidden lg:inline">Define</span></a>
                     <a href="{{ url_for('ideate') }}" class="nav-link" data-view="ideate-view"><i class="fas fa-lightbulb w-6 text-center"></i><span class="nav-text ml-3 hidden lg:inline">Ideate</span></a>
                     <a href="{{ url_for('prototype_test') }}" class="nav-link" data-view="prototype-test-view"><i class="fas fa-vial w-6 text-center"></i><span class="nav-text ml-3 hidden lg:inline">Prototype & Test</span></a>
                     <a href="{{ url_for('finalize') }}" class="nav-link" data-view="finalize-view"><i class="fas fa-flag-checkered w-6 text-center"></i><span class="nav-text ml-3 hidden lg:inline">Finalize</span></a>
@@ -47,14 +49,33 @@
         </div>
     </nav>
 
-    <!-- Main Content Area - Directed Workflow specific content -->
-    <div id="main-content" class="flex-grow flex flex-col overflow-hidden p-6">
-        <h1 class="text-3xl font-bold text-white mb-4">User-Directed Workflow</h1>
-        <p class="text-gray-400 mb-6">This section is under construction. Here, you will be able to manually guide agents through the design thinking process.</p>
-        
-        <div class="bg-gray-800 p-6 rounded-lg shadow-lg flex-grow flex items-center justify-center">
-            <p class="text-xl text-gray-500">More features coming soon!</p>
+    <!-- Main Content Area -->
+    <div id="main-content" class="flex-grow flex flex-col overflow-hidden">
+        <div id="define-view" class="view flex-grow h-full flex-row active">
+             <div class="flex-grow flex flex-col overflow-hidden">
+                <header class="p-4 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
+                    <h2 class="text-xl font-bold">Define Phase Whiteboard</h2>
+                    <div id="define-chat-toggle" class="bg-gray-700 p-2 rounded-md cursor-pointer hover:bg-gray-600"><i class="fas fa-comment-alt"></i></div>
+                </header>
+                <div class="flex-grow p-6 overflow-y-auto custom-scrollbar whiteboard-grid">
+                    <div id="pov-statement-container" class="hidden"></div>
+                    <div id="success-metrics-container" class="hidden"></div>
+                    <div id="scope-container" class="hidden"></div>
+                    <div id="final-problem-statement-container" class="hidden"></div>
+                    <div id="refined-hmw-container" class="hidden"></div>
+                </div>
+                <div class="phase-actions p-4 border-t border-gray-700"></div>
+            </div>
+            <div id="define-chat-container" class="hidden flex-shrink-0 w-full lg:w-1/3 border-l border-gray-700 flex flex-col bg-gray-800">
+                <div id="define-chat-log" class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar"></div>
+                 <footer class="p-4 border-t border-gray-700 bg-gray-800">
+                   <div class="relative"><input type="text" data-phase="define" class="chat-input w-full bg-gray-700 rounded-full py-2 pl-4 pr-12 text-sm" placeholder="Ask the Director to reframe..."><button class="chat-send-btn absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white"><i class="fas fa-paper-plane"></i></button></div>
+                 </footer>
+            </div>
         </div>
     </div>
+    
+    <!-- Define Application Script -->
+    <script type="module" src="{{ url_for('static', filename='js/define_app.js') }}"></script>
 </body>
 </html>

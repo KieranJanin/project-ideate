@@ -1,9 +1,8 @@
 // src/js/ui/common_event_handlers.js
 
 import { dom } from './domElements.js';
-import { switchView } from './viewManager.js';
 import { callGemini } from '../core/api.js';
-import { getCollectedData } from '../state/appState.js';
+import { currentSimulationState } from '../core/simulation_core.js'; // Import currentSimulationState
 import { agents } from '../config/agents.js';
 
 export function initializeCommonEventListeners() {
@@ -27,24 +26,18 @@ export function initializeCommonEventListeners() {
         });
     }
 
-    // Title click to go to landing page
-    [dom.projectTitle, dom.collapsedTitle].forEach(titleEl => {
-        if (titleEl) {
-            titleEl.style.cursor = 'pointer';
-            titleEl.addEventListener('click', () => {
-                window.location.href = '/';
-            });
-        }
-    });
+    // Removed click listener for projectTitle and collapsedTitle as they are now direct links in HTML
 
-    dom.generateChallengeBtn.addEventListener('click', handleGenerateChallenge);
-            
+    // Event listeners for chat interactions (if applicable on this page)
     document.querySelectorAll('.chat-send-btn').forEach(btn => btn.addEventListener('click', handlePhaseInteraction));
     document.querySelectorAll('.chat-input').forEach(input => {
         input.addEventListener('keyup', (e) => { if (e.key === 'Enter') handlePhaseInteraction(e); });
     });
 
-    for (const phaseKey of ['empathize', 'define', 'ideate', 'prototype', 'finalize']) {
+    // Event listeners for chat toggles per phase
+    // These elements might not exist on all pages, so conditional checks are good.
+    const phaseToggles = ['empathize', 'define', 'ideate', 'prototype', 'finalize'];
+    for (const phaseKey of phaseToggles) {
         const toggle = dom[`${phaseKey}ChatToggle`];
         const container = dom[`${phaseKey}ChatContainer`];
         if (toggle && container) {
@@ -52,34 +45,22 @@ export function initializeCommonEventListeners() {
         }
     }
 
-    dom.mainNav.addEventListener('click', (e) => {
-        const link = e.target.closest('.nav-link');
-        if (link) { e.preventDefault(); switchView(link.getAttribute('data-view')); }
-    });
-
-    dom.editTeamBtn.addEventListener('click', () => {
-        dom.agentEditPanel.classList.remove('hidden');
-        dom.editTeamBtn.classList.add('hidden');
-    });
-
-    dom.confirmTeamBtn.addEventListener('click', () => {
-        dom.agentEditPanel.classList.add('hidden');
-        dom.editTeamBtn.classList.remove('hidden');
-    });
-}
-
-async function handleGenerateChallenge() {
-    const keyword = dom.designChallengeTextarea.value.trim();
-    if (!keyword) {
-        alert("Please enter a keyword first (e.g., 'sustainable packaging').");
-        return;
+    // The navigation links (nav-link) now directly use Flask url_for in HTML,
+    // so the JavaScript switchView is no longer needed for main navigation.
+    // Keep the edit team and confirm team buttons for mission control if they exist.
+    if (dom.editTeamBtn) {
+        dom.editTeamBtn.addEventListener('click', () => {
+            dom.agentEditPanel.classList.remove('hidden');
+            dom.editTeamBtn.classList.add('hidden');
+        });
     }
-    const prompt = `You are a design thinking facilitator. Expand the following keyword into a rich, detailed, and inspiring design challenge for a creative team. Make it specific and actionable. KEYWORD: "${keyword}"`;
-    dom.designChallengeTextarea.value = "Generating challenge with AI...";
-    dom.designChallengeTextarea.disabled = true;
-    const result = await callGemini(prompt);
-    dom.designChallengeTextarea.value = result;
-    dom.designChallengeTextarea.disabled = false;
+
+    if (dom.confirmTeamBtn) {
+        dom.confirmTeamBtn.addEventListener('click', () => {
+            dom.agentEditPanel.classList.add('hidden');
+            dom.editTeamBtn.classList.remove('hidden');
+        });
+    }
 }
 
 async function handlePhaseInteraction(event) {
@@ -103,7 +84,7 @@ async function handlePhaseInteraction(event) {
 
     let context = ''; 
     let agentForTask = 'collaborator';
-    const collectedData = getCollectedData();
+    const collectedData = currentSimulationState.collectedData; // Use shared state
 
     if (phase === 'empathize') { 
         agentForTask = 'anthropologist'; 
@@ -112,9 +93,10 @@ async function handlePhaseInteraction(event) {
         agentForTask = 'director'; 
         context = `Problem Statement: ${collectedData.problemStatement}`; 
     } else if (phase === 'ideate') { 
-        agentForTask = 'experience-architect'; 
+        agentForTask = 'experience-architect'; // This might need adjustment based on who actually answers chat in ideate
         context = `Winning Concept: ${collectedData.winningConcept?.idea}`; 
     }
+    // Add more phases as needed for chat interaction
 
     const prompt = `You are the ${agentForTask} agent. A user is interacting with you. Context: ${context}. User's request: "${query}". Provide a helpful, concise response.`;
 

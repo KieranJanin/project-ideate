@@ -1,7 +1,7 @@
 // src/js/ui/renderers.js
 import { dom } from './domElements.js';
 import { agents } from '../config/agents.js';
-import { advanceToNextPhase } from '../core/simulation_logic.js'; // Import advanceToNextPhase
+// No longer importing advanceToNextPhase directly, as page-specific app.js will handle navigation
 
 // --- AGENT & FEED RENDERERS ---
 export function renderAgents() {
@@ -79,17 +79,21 @@ export function addMessageToFeed(agentId, content, type = 'msg', isAI = false) {
     dom.feedEl.scrollTop = dom.feedEl.scrollHeight;
 }
 
+// This function is for Mission Control specific action, not generic phase actions
 export function renderMissionControlPhaseActions() {
     if (dom.missionControlActions) {
         dom.missionControlActions.innerHTML = `
-            <button id="continue-next-phase-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center transition">
-                Continue to Next Phase <i class="fas fa-arrow-right ml-2"></i>
+            <button id="continue-to-empathize-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center transition">
+                Start Empathize Phase <i class="fas fa-arrow-right ml-2"></i>
             </button>
         `;
-        document.getElementById('continue-next-phase-btn').addEventListener('click', () => {
-            advanceToNextPhase();
-            dom.missionControlActions.innerHTML = ''; // Clear the button after click
-        });
+        // The event listener for this button will be attached in mission_control_app.js
+    }
+}
+
+export function clearMissionControlPhaseActions() {
+    if (dom.missionControlActions) {
+        dom.missionControlActions.innerHTML = '';
     }
 }
 
@@ -106,15 +110,23 @@ function createWhiteboardCard(title, content, container) {
     container.style.gridColumn = '';
 }
 
-export function renderPhaseActions(phase) {
-    const container = document.querySelector(`#${phase}-view .phase-actions`);
+export function renderPhaseActions(phaseSlug, nextPhaseUrl) {
+    // Phase slug is like 'empathize', 'define', etc.
+    const container = document.querySelector(`.phase-actions`); // Target the generic .phase-actions div on the current page
     if (container) {
         container.innerHTML = `
             <div class="flex justify-end gap-4">
-                <button class="phase-action-btn refresh-phase-btn" data-phase="${phase}">Refresh Phase</button>
-                <button class="phase-action-btn next-phase-btn" data-phase="${phase}">Next Phase</button>
+                <button class="phase-action-btn refresh-phase-btn" data-phase="${phaseSlug}">Refresh Phase</button>
+                <button class="phase-action-btn next-phase-btn" data-next-url="${nextPhaseUrl}">Continue to Next Phase</button>
             </div>
         `;
+    }
+}
+
+export function clearPhaseActions() {
+    const container = document.querySelector('.phase-actions');
+    if (container) {
+        container.innerHTML = '';
     }
 }
 

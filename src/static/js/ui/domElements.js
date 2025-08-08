@@ -31,8 +31,13 @@ export function initializeDomElements() {
         generateChallengeBtn: document.getElementById('generate-challenge-btn'),
         designChallengeTextarea: document.getElementById('design-challenge'),
         loadingSpinner: document.getElementById('loading-spinner'),
-        missionControlActions: document.getElementById('mission-control-actions'), // Added this line
+        missionControlActions: document.getElementById('mission-control-actions'),
         
+        // New Project Management Elements
+        newProjectNameInput: document.getElementById('new-project-name'),
+        createProjectBtn: document.getElementById('create-project-btn'),
+        projectListContainer: document.getElementById('project-list-container'),
+
         // Simulation controls
         pauseBtn: document.getElementById('pause-btn'),
         speedSlider: document.getElementById('speed-slider'),
