@@ -6,7 +6,7 @@ import { getCollectedData, updateCollectedData, resetCollectedData } from '../st
 import { dom } from '../ui/domElements.js';
 import { switchView } from '../ui/viewManager.js';
 import * as renderers from '../ui/renderers.js';
-import { callGemini, saveDesignChallenge } from './api.js';
+import { callGemini, saveDesignChallenge, generateImage } from './api.js';
 
 let simInterval;
 let scriptIndex = 0;
@@ -162,19 +162,36 @@ async function handleGeminiCall(step, agentName, challenge) {
     // Build prompt based on task
     switch (step.task) {
         case 'generate_persona':
-            prompt = `You are the ${agentName}. Based on research for the challenge "${challenge}", create a single user persona. Respond in JSON format with fields: "name" (string), "bio" (string, 1-2 sentences), "goals" (array of 3 strings), and "frustrations" (array of 3 strings).`;
+            console.log('Generating persona. Current collected data:', data);
+            prompt = `You are the ${agentName}. Based on research for the challenge "${challenge}", create a single user persona. Respond in JSON format with fields: "name" (string), "bio" (string, 1-2 sentences), "goals" (array of 3 strings), "frustrations" (array of 3 strings), and "image_prompt" (string, a concise description for image generation, e.g., "A young woman working on a laptop in a cafe, natural lighting").`;
             break;
         case 'generate_quotes':
-            if (!data.persona) { renderers.addMessageToFeed(step.agent, 'Skipping quotes, no persona available.', 'msg', true); return; }
-            prompt = `You are the ${agentName}. To give life to our persona, ${data.persona.name}, write 3 powerful, emotive quotes that capture their key frustrations related to "${challenge}". Respond in a JSON array of strings.`;
+            console.log('Generating quotes. Current collected data:', data);
+            if (!data.personas || data.personas.length === 0) {
+                const skipMsg = 'Skipping quotes, no persona available in collected data.';
+                renderers.addMessageToFeed(step.agent, skipMsg, 'thought', true);
+                console.warn(skipMsg); 
+                return; 
+            }
+            // Use the last generated persona for quotes
+            const latestPersonaForQuotes = data.personas[data.personas.length - 1];
+            prompt = `You are the ${agentName}. To give life to our persona, ${latestPersonaForQuotes.name}, write 3 powerful, emotive quotes that capture their key frustrations related to "${challenge}". Respond in a JSON array of strings.`;
             break;
          case 'generate_hmw':
-            if (!data.persona) { renderers.addMessageToFeed(step.agent, 'Skipping HMWs, no persona available.', 'msg', true); return; }
-            prompt = `You are the ${agentName}. Based on our persona's frustrations (${data.persona.frustrations.join(', ')}), generate 3 "How Might We..." questions. Respond in a JSON array of strings.`;
+            console.log('Generating HMW. Current collected data:', data);
+            if (!data.personas || data.personas.length === 0) {
+                const skipMsg = 'Skipping HMWs, no persona available in collected data.';
+                renderers.addMessageToFeed(step.agent, skipMsg, 'thought', true);
+                console.warn(skipMsg); 
+                return; 
+            }
+            // Use the last generated persona for HMWs
+            const latestPersonaForHMW = data.personas[data.personas.length - 1];
+            prompt = `You are the ${agentName}. Based on our persona's frustrations (${latestPersonaForHMW.frustrations.join(', ')}), generate 3 "How Might We..." questions. Respond in a JSON array of strings.`;
             break;
         case 'generate_pov':
-            if (!data.persona) { renderers.addMessageToFeed(step.agent, 'Skipping POV, no persona available.', 'msg', true); return; }
-            prompt = `You are the ${agentName}. Synthesize the persona (${data.persona.name}, who feels "${data.persona.frustrations.join(', ')}") into a Point of View statement. Respond in JSON with keys "user", "need", "insight".`;
+            if (!data.pov) { renderers.addMessageToFeed(step.agent, 'Skipping POV, no POV available.', 'msg', true); return; }
+            prompt = `You are the ${agentName}. Synthesize the persona (${data.pov.name}, who feels "${data.pov.frustrations.join(', ')}") into a Point of View statement. Respond in JSON with keys "user", "need", "insight".`;
             break;
         case 'generate_metrics':
             if (!data.pov) { renderers.addMessageToFeed(step.agent, 'Skipping metrics, no POV available.', 'msg', true); return; }
@@ -213,9 +230,9 @@ async function handleGeminiCall(step, agentName, challenge) {
             break;
     }
     
-    console.log(`Calling Gemini with prompt for task: ${step.task}`);
+    renderers.addMessageToFeed(step.agent, `Prompting Gemini with: <pre>${prompt}</pre>`, 'thought', true); // Display prompt
     const response = await callGemini(prompt, step.task.includes('generate') || step.task.includes('define') || step.task.includes('evaluate') || step.task.includes('select') || step.task.includes('refine'));
-    console.log(`Gemini Response for ${step.task}:`, response);
+    renderers.addMessageToFeed(step.agent, `Gemini responded with: <pre>${JSON.stringify(response, null, 2)}</pre>`, 'thought', true); // Display raw response
 
     // Process response
     if (response) {
@@ -236,7 +253,19 @@ async function handleGeminiCall(step, agentName, challenge) {
         };
         const stateKey = keyMap[step.task];
         if(stateKey) {
-            updateCollectedData(stateKey, response.statement ? response.statement : response);
+            let dataToStore = response.statement ? response.statement : response;
+            
+            // Special handling for persona to generate image
+            if (step.task === 'generate_persona' && response.image_prompt) {
+                const imageUrl = await generateImage(response.image_prompt);
+                if (imageUrl) {
+                    dataToStore = { ...response, imageUrl };
+                } else {
+                    console.warn("Image generation failed for persona.", response);
+                }
+            }
+            console.log(`Updating collected data for ${stateKey}:`, dataToStore);
+            updateCollectedData(stateKey, dataToStore);
         }
 
         let renderer;
@@ -268,6 +297,17 @@ async function handleGeminiCall(step, agentName, challenge) {
             case 'select_winning_concept':
                 renderer = renderers['renderWinningConcept'];
                 break;
+            case 'generate_persona':
+                // For persona, we render the individual persona as it's added to the array
+                renderer = renderers['renderPersona'];
+                // Pass the single, newly generated persona object
+                if (stateKey === 'persona' && dataToStore) {
+                    renderers.renderPersona(dataToStore);
+                } else {
+                     console.log(`No specific renderer for ${step.task}, adding raw response to feed.`);
+                     renderers.addMessageToFeed(step.agent, response, 'msg', true);
+                }
+                return; // Return here as renderPersona is called directly
             default:
                 // Fallback for other tasks if they follow a consistent naming convention
                 renderer = renderers[`render${step.task.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('').replace('Generate', '').replace('Define', '').replace('Select', '').replace('Evaluate', '')}`];
@@ -308,6 +348,10 @@ export function resetSimulation(keepChallenge = false) {
         el.classList.add('hidden');
         el.style.gridColumn = '';
     });
+    
+    // Clear carousel track and indicators on reset
+    if (dom.personaCarouselTrack) dom.personaCarouselTrack.innerHTML = '';
+    if (dom.personaCarouselIndicators) dom.personaCarouselIndicators.innerHTML = '';
     
     renderers.renderAgents();
     dom.startBtn.disabled = false;

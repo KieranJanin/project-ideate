@@ -12,7 +12,7 @@ let collectedData = {};
  */
 export function resetCollectedData() {
     collectedData = { 
-        persona: null, 
+        personas: [], // Changed to an array to store multiple personas
         quotes: [], 
         hmw: [], 
         pov: null, 
@@ -40,7 +40,9 @@ export function getCollectedData() {
  * @param {*} value - The new value for the key.
  */
 export function updateCollectedData(key, value) {
-    if (collectedData.hasOwnProperty(key)) {
+    if (key === 'persona') { // Special handling for persona to push into array
+        collectedData.personas.push(value);
+    } else if (collectedData.hasOwnProperty(key)) {
         collectedData[key] = value;
     } else {
         console.warn(`Attempted to update non-existent state key: ${key}`);

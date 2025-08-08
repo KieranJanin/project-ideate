@@ -1,7 +1,10 @@
 // src/js/ui/renderers.js
 import { dom } from './domElements.js';
 import { agents } from '../config/agents.js';
-import { advanceToNextPhase } from '../core/simulation_logic.js'; // Import advanceToNextPhase
+import { advanceToNextPhase } from '../core/simulation_logic.js'; 
+import { getCollectedData } from '../state/appState.js';
+
+let currentPersonaIndex = 0;
 
 // --- AGENT & FEED RENDERERS ---
 export function renderAgents() {
@@ -95,15 +98,18 @@ export function renderMissionControlPhaseActions() {
 
 // --- WHITEBOARD RENDERERS ---
 
-function createWhiteboardCard(title, content, container) {
-    container.innerHTML = `
-        <div class="bg-gray-800 p-4 rounded-lg h-full flex flex-col">
-            <h4 class="font-semibold text-white mb-3">${title}</h4>
-            <div class="text-sm text-gray-300 space-y-2 flex-grow">${content}</div>
-        </div>
+function createWhiteboardCard(title, content, container, cardId = null, className = '') {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = `bg-gray-800 p-4 rounded-lg h-full flex flex-col ${className}`;
+    if (cardId) cardDiv.id = cardId; // Assign ID if provided
+
+    cardDiv.innerHTML = `
+        <h4 class="font-semibold text-white mb-3">${title}</h4>
+        <div class="text-sm text-gray-300 space-y-2 flex-grow">${content}</div>
     `;
+    container.appendChild(cardDiv);
     container.classList.remove('hidden');
-    container.style.gridColumn = '';
+    // container.style.gridColumn = ''; // This might not be needed for carousel cards
 }
 
 export function renderPhaseActions(phase) {
@@ -120,6 +126,7 @@ export function renderPhaseActions(phase) {
 
 export function renderPersona(persona) {
     const content = `
+        ${persona.imageUrl ? `<img src="${persona.imageUrl}" alt="${persona.name}" class="w-full h-48 object-cover rounded-md mb-3"/>` : ''}
         <p class="text-lg font-bold text-yellow-300">${persona.name}</p>
         <p class="italic">"${persona.bio}"</p>
         <div class="mt-2">
@@ -131,11 +138,13 @@ export function renderPersona(persona) {
         <div class="mt-2">
             <p class="font-semibold">Frustrations:</p>
             <ul class="list-disc list-inside">
-                ${persona.frustrations.map(f => `<li>${f}</li>`).join('')}
-            </ul>
+                ${persona.frustrations.map(f => `<li>${f}</li>`).join('')}</ul>
         </div>
     `;
-    createWhiteboardCard('❤️ User Persona', content, dom.personaContainer);
+    // Generate a unique ID for each persona card
+    const cardId = `persona-card-${Date.now()}`;
+    createWhiteboardCard('❤️ User Persona', content, dom.personaCarouselTrack, cardId, 'carousel-card');
+    initializeCarousel(); // Re-initialize carousel after adding a new card
 }
 
 export function renderKeyQuotes(quotes) {
@@ -237,4 +246,84 @@ export function renderWinningConcept(concept) {
     `;
     createWhiteboardCard('✨ Winning Concept', content, dom.winningConceptContainer);
     dom.winningConceptContainer.classList.add('col-span-full');
+}
+
+// --- CAROUSEL LOGIC ---
+
+function initializeCarousel() {
+    if (!dom.personaCarousel || !dom.personaCarouselTrack) return;
+
+    const personas = getCollectedData().personas; // Get all collected personas
+    const totalPersonas = personas.length;
+
+    // Render indicators
+    dom.personaCarouselIndicators.innerHTML = '';
+    for (let i = 0; i < totalPersonas; i++) {
+        const dot = document.createElement('span');
+        dot.classList.add('indicator-dot');
+        dot.addEventListener('click', () => { moveToSlide(i); });
+        dom.personaCarouselIndicators.appendChild(dot);
+    }
+
+    // Set initial state or update based on current index
+    if (totalPersonas > 0) {
+        dom.personaCarousel.classList.remove('hidden'); // Ensure carousel is visible
+        updateCarouselDisplay();
+    } else {
+        dom.personaCarousel.classList.add('hidden'); // Hide if no personas
+    }
+
+    // Attach event listeners only once
+    if (dom.personaPrevBtn && !dom.personaPrevBtn.dataset.listenerAttached) {
+        dom.personaPrevBtn.addEventListener('click', showPrevPersona);
+        dom.personaPrevBtn.dataset.listenerAttached = 'true';
+    }
+    if (dom.personaNextBtn && !dom.personaNextBtn.dataset.listenerAttached) {
+        dom.personaNextBtn.addEventListener('click', showNextPersona);
+        dom.personaNextBtn.dataset.listenerAttached = 'true';
+    }
+}
+
+function updateCarouselDisplay() {
+    const cards = Array.from(dom.personaCarouselTrack.children);
+    if (cards.length === 0) return; // No cards to display
+
+    const offset = -currentPersonaIndex * 100;
+    dom.personaCarouselTrack.style.transform = `translateX(${offset}%)`;
+
+    // Update indicators
+    Array.from(dom.personaCarouselIndicators.children).forEach((dot, index) => {
+        if (index === currentPersonaIndex) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
+
+    // Enable/disable buttons
+    if (dom.personaPrevBtn) dom.personaPrevBtn.disabled = currentPersonaIndex === 0;
+    if (dom.personaNextBtn) dom.personaNextBtn.disabled = currentPersonaIndex === cards.length - 1;
+}
+
+function showNextPersona() {
+    const personas = getCollectedData().personas;
+    if (currentPersonaIndex < personas.length - 1) {
+        currentPersonaIndex++;
+        updateCarouselDisplay();
+    }
+}
+
+function showPrevPersona() {
+    if (currentPersonaIndex > 0) {
+        currentPersonaIndex--;
+        updateCarouselDisplay();
+    }
+}
+
+function moveToSlide(index) {
+    const personas = getCollectedData().personas;
+    if (index >= 0 && index < personas.length) {
+        currentPersonaIndex = index;
+        updateCarouselDisplay();
+    }
 }

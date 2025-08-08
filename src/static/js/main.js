@@ -1,18 +1,16 @@
 // src/js/main.js
-import { initializeEventListeners } from './ui/eventHandlers.js';
-import { initializeAppUI } from './ui/renderers.js';
-import { resetSimulation } from './core/simulation.js';
-// The fetchApiKey function is no longer needed on the frontend as the backend handles API keys securely.
-// import { fetchApiKey } from './core/api.js'; 
+import { initializeCommonEventListeners } from './ui/common_event_handlers.js';
+import { renderAgents } from './ui/renderers.js'; // Changed from initializeAppUI
+import { resetSimulation } from './core/simulation_logic.js';
+import { initializeDomElements } from './ui/domElements.js';
 
 /**
  * Initializes the entire application.
  */
 async function initializeApp() {
-    // No longer need to fetch API key directly on the frontend.
-    // await fetchApiKey(); 
-    initializeAppUI();
-    initializeEventListeners();
+    initializeDomElements(); // Initialize DOM elements first
+    renderAgents(); // Call renderAgents to initialize UI related to agents
+    initializeCommonEventListeners();
     resetSimulation(); // Perform initial reset
 }
 

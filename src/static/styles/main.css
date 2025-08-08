@@ -1,4 +1,4 @@
-T/* src/css/main.css */
+/* src/css/main.css */
 
 /* Custom scrollbar for webkit browsers */
 .custom-scrollbar::-webkit-scrollbar {
@@ -119,4 +119,69 @@ body {
     border: 2px solid #fff;
     font-weight: bold;
     font-size: 1.2rem;
+}
+
+/* Carousel container */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Carousel track for persona cards */
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+/* Individual persona card within carousel */
+.carousel-card {
+    flex: 0 0 100%; /* Each card takes full width of container */
+    box-sizing: border-box;
+    padding: 1rem;
+    background-color: rgba(31, 41, 55, 0.5);
+    border-radius: 0.5rem;
+    margin-right: 1.5rem; /* gap between cards if showing multiple */
+}
+
+/* Carousel navigation buttons */
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    z-index: 10;
+    border-radius: 50%;
+}
+
+.carousel-button.prev {
+    left: 10px;
+}
+
+.carousel-button.next {
+    right: 10px;
+}
+
+/* Carousel indicators */
+.carousel-indicators {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.indicator-dot {
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.indicator-dot.active {
+    background-color: rgba(255, 255, 255, 0.9);
 }

@@ -31,7 +31,7 @@ export function initializeDomElements() {
         generateChallengeBtn: document.getElementById('generate-challenge-btn'),
         designChallengeTextarea: document.getElementById('design-challenge'),
         loadingSpinner: document.getElementById('loading-spinner'),
-        missionControlActions: document.getElementById('mission-control-actions'), // Added this line
+        missionControlActions: document.getElementById('mission-control-actions'), 
         
         // Simulation controls
         pauseBtn: document.getElementById('pause-btn'),
@@ -44,7 +44,16 @@ export function initializeDomElements() {
         // Empathize Phase
         empathizeChatToggle: document.getElementById('empathize-chat-toggle'),
         empathizeChatContainer: document.getElementById('empathize-chat-container'),
+        // Persona Carousel Elements
+        personaCarousel: document.getElementById('persona-carousel'),
+        personaCarouselTrack: document.getElementById('persona-carousel-track'),
+        personaPrevBtn: document.querySelector('#persona-carousel .carousel-button.prev'),
+        personaNextBtn: document.querySelector('#persona-carousel .carousel-button.next'),
+        personaCarouselIndicators: document.getElementById('persona-carousel-indicators'),
+        
+        // Old persona container (no longer used for direct rendering, but kept for reference if needed elsewhere)
         personaContainer: document.getElementById('persona-container'),
+
         keyQuotesContainer: document.getElementById('key-quotes-container'),
         hmwContainer: document.getElementById('hmw-container'),
         

@@ -90,6 +90,37 @@ export function callGemini(prompt, isJson = false, stream = false, onStream = nu
 }
 
 /**
+ * Calls the backend to generate an image based on a prompt.
+ * @param {string} prompt - The prompt for image generation.
+ * @returns {Promise<string|null>} The URL of the generated image, or null if an error occurred.
+ */
+export async function generateImage(prompt) {
+    isCallingAPI(true); // Show loading spinner
+    try {
+        const response = await fetch('http://localhost:5000/generate-image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ prompt: prompt }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate image.');
+        }
+
+        const data = await response.json();
+        return data.imageUrl; // Assuming the backend returns { imageUrl: "..." }
+    } catch (error) {
+        console.error("Error generating image:", error);
+        return null;
+    } finally {
+        isCallingAPI(false); // Hide loading spinner
+    }
+}
+
+/**
  * Sends the design challenge to the backend for saving.
  * @param {string} challenge - The design challenge text.
  * @returns {Promise<object>} The response from the backend.

@@ -61,7 +61,6 @@
                          <label for="design-challenge" class="text-sm font-medium text-gray-300">Design Challenge</label>
                          <div>
                             <button id="generate-challenge-btn" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded-md flex items-center transition">Generate ✨</button>
-                            <button id="export-challenge-btn" class="text-xs bg-gray-600 hover:bg-gray-700 text-white font-semibold py-1 px-2 rounded-md flex items-center transition">Export</button>
                          </div>
                     </div>
                     <textarea id="design-challenge" rows="4" class="w-full bg-gray-700 border-gray-600 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter a keyword and click Generate..."></textarea>
@@ -104,6 +103,8 @@
                 </div>
             </main>
         </div>
+
+        <!-- Empathize View (updated with carousel) -->
         <div id="empathize-view" class="view flex-grow h-full flex-row">
             <div class="flex-grow flex flex-col overflow-hidden">
                 <header class="p-4 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
@@ -111,9 +112,30 @@
                     <div id="empathize-chat-toggle" class="bg-gray-700 p-2 rounded-md cursor-pointer hover:bg-gray-600"><i class="fas fa-comment-alt"></i></div>
                 </header>
                 <div class="flex-grow p-6 overflow-y-auto custom-scrollbar whiteboard-grid">
-                    <div id="persona-container" class="hidden"></div>
-                    <div id="key-quotes-container" class="hidden"></div>
-                    <div id="hmw-container" class="hidden"></div>
+                    <!-- Persona Carousel Container -->
+                    <div class="col-span-full bg-gray-900/50 p-6 rounded-lg shadow-lg relative">
+                        <h3 class="text-xl font-bold text-white mb-4">User Personas</h3>
+                        <div id="persona-carousel" class="carousel-container">
+                            <div id="persona-carousel-track" class="carousel-track">
+                                <!-- Persona cards will be rendered here by JavaScript -->
+                            </div>
+                            <button class="carousel-button prev"><i class="fas fa-chevron-left"></i></button>
+                            <button class="carousel-button next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div id="persona-carousel-indicators" class="carousel-indicators"></div>
+                    </div>
+
+                    <!-- Key Quotes Container -->
+                    <div id="key-quotes-container" class="bg-gray-800/50 p-6 rounded-lg shadow-lg hidden">
+                        <h3 class="font-semibold text-white mb-3">❤️ Key Quotes</h3>
+                        <!-- Content will be rendered here by JavaScript -->
+                    </div>
+
+                    <!-- How Might We Container -->
+                    <div id="hmw-container" class="bg-gray-800/50 p-6 rounded-lg shadow-lg hidden">
+                        <h3 class="font-semibold text-white mb-3">❤️ How Might We...</h3>
+                        <!-- Content will be rendered here by JavaScript -->
+                    </div>
                 </div>
             </div>
             <div id="empathize-chat-container" class="hidden flex-shrink-0 w-full lg:w-1/3 border-l border-gray-700 flex flex-col bg-gray-800">
@@ -123,6 +145,8 @@
                 </footer>
             </div>
         </div>
+
+        <!-- Define View -->
         <div id="define-view" class="view flex-grow h-full flex-row">
              <div class="flex-grow flex flex-col overflow-hidden">
                 <header class="p-4 border-b border-gray-700 flex justify-between items-center flex-shrink-0">
