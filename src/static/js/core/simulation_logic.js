@@ -64,6 +64,14 @@ async function processScriptStep() {
     const step = simulationFlow[scriptIndex];
     const activeAgents = Array.from(document.querySelectorAll('.agent-toggle:checked')).map(el => el.value);
     
+    // Log for debugging
+    console.log(`Script Index: ${scriptIndex}`);
+    console.log(`Current Step Type: ${step.type}`);
+    console.log(`Current Step Agent: ${step.agent}`);
+    console.log(`Active Agents: ${activeAgents}`);
+    console.log(`Is director: ${step.agent === 'director'}`);
+    console.log(`Should skip: ${step.agent && !activeAgents.includes(step.agent) && step.agent !== 'director'}`);
+
     if (step.agent && !activeAgents.includes(step.agent) && step.agent !== 'director') {
         scriptIndex++;
         processScriptStep();
@@ -75,18 +83,22 @@ async function processScriptStep() {
 
     switch (step.type) {
         case 'phase_marker':
+            console.log(`Processing phase_marker: ${phases[step.phase]}`);
             renderers.addMessageToFeed(null, `Entering ${phases[step.phase]} Phase`, 'phase_marker');
             updateMissionControlPhase(step.phase);
             break;
         case 'phase':
+            console.log(`Processing phase: ${phases[step.phase]}`);
             currentPhase = step.phase;
             switchView(`${phases[currentPhase].toLowerCase().replace(/ & /g, '-').replace(' ', '-')}-view`);
             break;
         case 'msg':
+            console.log(`Processing msg from ${step.agent}`);
             const content = typeof step.content === 'function' ? step.content(challenge, getCollectedData()) : step.content;
             renderers.addMessageToFeed(step.agent, content, step.thought ? 'thought' : 'msg');
             break;
         case 'gate':
+            console.log('Processing gate');
             stopInterval();
             isPaused = true; // Explicitly set paused state
             dom.pauseBtn.innerHTML = '<i class="fas fa-play"></i>'; // Show play icon
@@ -94,7 +106,12 @@ async function processScriptStep() {
             dom.statusEl.className = 'font-semibold text-yellow-400';
             renderers.renderMissionControlPhaseActions(); // Render the new button
             break;
+        case 'call_gemini':
+            console.log(`Processing call_gemini for task: ${step.task} by agent: ${step.agent}`);
+            await handleGeminiCall(step, agentName, challenge);
+            break;
         case 'end':
+            console.log('Processing end');
             stopSimulation();
             dom.statusEl.textContent = 'Completed';
             dom.statusEl.className = 'font-semibold text-green-400';
@@ -196,8 +213,10 @@ async function handleGeminiCall(step, agentName, challenge) {
             break;
     }
     
+    console.log(`Calling Gemini with prompt for task: ${step.task}`);
     const response = await callGemini(prompt, step.task.includes('generate') || step.task.includes('define') || step.task.includes('evaluate') || step.task.includes('select') || step.task.includes('refine'));
-    
+    console.log(`Gemini Response for ${step.task}:`, response);
+
     // Process response
     if (response) {
         const keyMap = {
@@ -256,12 +275,15 @@ async function handleGeminiCall(step, agentName, challenge) {
         }
 
         if (renderer) {
+            console.log(`Rendering ${step.task} with response:`, response);
             renderer(response.statement ? response.statement : response);
             renderers.addMessageToFeed(step.agent, `I've completed my task. Check the whiteboard.`, 'msg', true);
         } else {
+             console.log(`No specific renderer for ${step.task}, adding raw response to feed.`);
              renderers.addMessageToFeed(step.agent, response, 'msg', true);
         }
     } else {
+        console.error(`Gemini call for ${step.task} returned no response or an error.`);
         renderers.addMessageToFeed(step.agent, "I encountered a problem with my task and couldn't complete it.", 'msg', true);
     }
 }
